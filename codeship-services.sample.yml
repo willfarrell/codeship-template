@@ -1,0 +1,27 @@
+init:
+  image: willfarrell/codeship-init
+  encrypted_env_file: env.encrypted
+  volumes:
+    - ./:/var/src
+  cached: true
+
+docker:
+  image: willfarrell/codeship-docker
+  encrypted_env_file: env.encrypted
+  volumes_from:
+    - init
+  cached: true
+
+node:
+  image: willfarrell/codeship-node
+  encrypted_env_file: env.encrypted
+  volumes_from:
+    - init
+  cached: true
+
+aws:
+  image: willfarrell/codeship-aws
+  encrypted_env_file: env.encrypted
+  cached: true
+  volumes_from:
+    - init

@@ -1,0 +1,64 @@
+#!/usr/bin/env sh
+set -e
+
+decrypt () {
+  touch ${1}
+  if [ -e "${1}.encrypted" ]; then
+    echo ${AES_PASSWORD} | openssl aes-256-cbc -d -a -pass pass:secret -in ${1}.encrypted -out ${1}
+  fi
+}
+
+# ===== Decrypt ===== #
+decrypt env
+. env
+
+# ===== ENVIRONMENT ===== #
+# TODO git pull missing data
+
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "${GIT_BRANCH}" == "HEAD" ]; then GIT_BRANCH=${CI_BRANCH}; fi
+GIT_COMMIT_ID=$(git rev-parse HEAD)
+GIT_COMMIT_TAG=$(git tag -l --points-at HEAD)
+GIT_LATEST_TAG=$(git describe --abbrev=0 --tags) # Broken on codeship :(
+
+echo "Commit: ${GIT_COMMIT_ID}; Branch: ${GIT_BRANCH}; Tag: ${GIT_LATEST_TAG} vs. ${GIT_COMMIT_TAG}"
+
+gitflowEnv () {
+  if [ "${GIT_BRANCH}" == "master" ] && [ "${GIT_LATEST_TAG}" == "${GIT_COMMIT_TAG}" ]; then
+    echo "production"
+  elif [[ "${GIT_BRANCH}" == release/* ]] && [ "${GIT_LATEST_TAG}" == "${GIT_COMMIT_TAG}" ]; then
+    echo "staging"
+  elif [[ "${GIT_BRANCH}" == release/* ]]; then
+    echo "testing"
+  elif [ "${GIT_BRANCH}" == "develop" ]; then
+    echo "development"
+  else
+    echo "default"
+  fi
+}
+ENVIRONMENT=$(gitflowEnv)
+
+# ===== VERSION ===== #
+if [ -e "package.json" ]; then
+  VERSION=$(npm version patch)
+  VERSION=$(echo ${VERSION} | cut -c 2-)
+
+  # TODO warn if version don't match
+  if [ "${GIT_COMMIT_TAG}" != "" ] && [ "${GIT_COMMIT_TAG}" != "${VERSION}" ]; then
+    echo "Your git tag (${GIT_COMMIT_TAG}) does not match the package.json version (${VERSION}) "
+    exit 1
+  fi
+fi
+
+# ===== Decrypt ===== #
+decrypt env.${ENVIRONMENT}
+. env.${ENVIRONMENT}
+
+# ===== Save ===== #
+cat << ENV >> env
+GIT_BRANCH=${GIT_BRANCH}
+GIT_COMMIT_ID=${GIT_COMMIT_ID}
+GIT_COMMIT_TAG=${GIT_COMMIT_TAG}
+GIT_LATEST_TAG=${GIT_LATEST_TAG}
+ENVIRONMENT=${ENVIRONMENT}
+ENV
