@@ -1,4 +1,4 @@
-FROM willfarrell/libressl AS libressl
-FROM buildpack-deps:stretch
-COPY --from=libressl /libressl/ /
-COPY bin/ /bin/
+FROM willfarrell/libressl:latest AS libressl
+FROM scratch
+COPY --from=libressl /libressl/ /libressl/
+COPY bin/ /bin

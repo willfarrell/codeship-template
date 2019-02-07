@@ -1,11 +1,14 @@
-#FROM willfarrell/codeship-scripts AS scripts
+FROM willfarrell/codeship-scripts AS scripts
 
 FROM docker:18-git
-#COPY --from=scripts /libressl/ /
-#COPY --from=scripts /bin/ /usr/local/bin/
+COPY --from=scripts /libressl/ /
 
 ARG workdir=/var/src
+ARG bin=/usr/local/bin/codeship
 
-COPY bin/ /usr/local/bin/
+ENV PATH="${PATH}:${bin}"
+
+COPY bin/ ${bin}/
+#COPY --from=scripts /bin/ ${bin}/
 
 WORKDIR ${workdir}

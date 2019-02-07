@@ -14,7 +14,6 @@ gitflowEnv () {
   fi
 }
 
-
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "${GIT_BRANCH}" == "HEAD" ] && [ ! -z "${CI_BRANCH}" ]; then GIT_BRANCH=${CI_BRANCH}; fi
 GIT_COMMIT_ID=$(git rev-parse --short HEAD)
