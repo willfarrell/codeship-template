@@ -9,6 +9,6 @@ ARG bin=/usr/local/bin/codeship
 ENV PATH="${PATH}:${bin}"
 
 COPY bin/ ${bin}/
-#COPY --from=scripts /bin/ ${bin}/
+COPY --from=scripts /bin/ ${bin}/
 
 WORKDIR ${workdir}

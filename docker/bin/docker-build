@@ -9,7 +9,9 @@ set -e
 
 # ENV
 . ./env.gitflow
-#. ./env.${ENVIRONMENT}
+if [ -e "./env.${ENVIRONMENT}" ]; then
+  . ./env.${ENVIRONMENT}
+fi
 
 # Inputs
 
@@ -25,8 +27,6 @@ echo "Building ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} from ${SOURCE_DIR}"
 if [ -z "${DOCKER_REGISTRY}" ]; then
   echo "DOCKER_REGISTRY not set. Docker Hub will be used.";
 fi
-
-env
 
 if [ ! -z "${DOCKER_USERNAME}" ] && [ ! -z "${DOCKER_PASSWORD}" ]; then
   echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin ${DOCKER_REGISTRY}
