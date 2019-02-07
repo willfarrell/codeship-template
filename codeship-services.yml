@@ -5,6 +5,7 @@ docker:
     dockerfile_path: Dockerfile
   cached: true
   #encrypted_env_file: env.encrypted
+  env_file: env
   volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     - ./:/var/src

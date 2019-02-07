@@ -9,11 +9,10 @@
   service: docker
   steps:
     - command: gitflow
-    - command: docker-connect
     - name: Build & Push Docker Image
       command: docker-build willfarrell/codeship-scripts ./scripts/
 
-#- name: Build CI/CD Docker Iamges
+#- name: Build CI/CD Docker Images
 #  type: parallel
 #  service: docker
 #  steps:

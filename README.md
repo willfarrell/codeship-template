@@ -51,3 +51,36 @@ Contains the `aws-sdk cli`.
 - Phase III
   - terraform module aws-code-pipeline
 
+
+## `env`
+```bash
+# Setup ENV
+AES_PASSWORD=
+
+
+# Build NodeJS
+NPM_TOKEN=
+
+
+# Build Docker
+DOCKER_REGISTRY=
+DOCKER_USERNAME=
+DOCKER_PASSWORD=
+
+# Deploy
+AWS_REGION=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+```
+
+## `env.{development,teesting,staging,production}`
+```bash
+# React
+REACT_APP_COMMIT_HASH=${GIT_COMMIT_HASH}
+REACT_APP_VERSION=
+
+# awscli
+# TODO assume roles ENV
+AWS_ACCOUNT_ID=
+AWS_ASSUME_ROLE=
+```
