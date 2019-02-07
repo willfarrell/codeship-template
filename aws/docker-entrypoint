@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-set -ex
-
-# ===== Setup ENV ===== #
-. env
-. env.${ENVIRONMENT}

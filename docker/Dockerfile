@@ -1,6 +1,11 @@
-FROM docker
+#FROM willfarrell/codeship-scripts AS scripts
 
-WORKDIR /var/src
+FROM docker:18-git
+#COPY --from=scripts /libressl/ /
+#COPY --from=scripts /bin/ /usr/local/bin/
 
-COPY docker-entrypoint /
-ENTRYPOINT ["/docker-entrypoint"]
+ARG workdir=/var/src
+
+COPY bin/ /usr/local/bin/
+
+WORKDIR ${workdir}

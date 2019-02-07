@@ -1,10 +1,11 @@
+FROM willfarrell/codeship-scripts AS scripts
+
 FROM node:8
+COPY --from=scripts /libressl/ /
+COPY --from=scripts /bin/ /usr/local/bin/
 
-COPY docker-entrypoint /
-ENTRYPOINT ["/docker-entrypoint"]
+ARG workdir=/var/src
 
-WORKDIR /var/src
+RUN export PATH=$PATH:${workdir}/node_modules/.bin
 
-RUN export PATH=$PATH:/var/src/node_modules/.bin
-
-# TODO RUN npm i {scans}
+WORKDIR ${workdir}

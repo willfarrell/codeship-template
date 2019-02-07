@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+set -e
+
+if [ -z "${DOCKER_REGISTRY}" ]; then
+  echo "DOCKER_REGISTRY not set. Docker Hub will be used.";
+fi
+
+if [ ! -z "${DOCKER_USERNAME}" ] && [ ! -z "${DOCKER_PASSWORD}" ]; then
+  docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
+fi
+

@@ -17,5 +17,4 @@ RUN echo "root hard  nofile 100000" >> /etc/security/limits.conf
 # Allow the calling of npm bin scripts
 RUN export PATH=$PATH:/var/src/node_modules/.bin
 
-COPY docker-entrypoint /
-ENTRYPOINT ["/docker-entrypoint"]
+COPY docker-entrypoint.sh /usr/local/bin/

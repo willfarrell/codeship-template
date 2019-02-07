@@ -20,9 +20,14 @@
   services:
     - node
   steps:
+    - command: npm-ci
     - tag: develop
       command: npm run build
+    - tag: ^feature/
+      command: npm run build
     - tag: ^release/
+      command: npm run build
+    - tag: ^hotfix/
       command: npm run build
 
 - name: Build Docker Application
@@ -30,7 +35,8 @@
   services:
     - docker
   steps:
-    - name:
+    - name: Build Docker Image
+      command: docker-build image-name ./path/to/Dockerfile/ tag-suffix
 
 
 - name: Deploy Application
@@ -39,10 +45,13 @@
     - aws
   steps:
     - name: Exit if not deployment branch
-      command: bash -c 'if ["${ENVIRONMENT}" == "default"]; then exit 1; fi'
+      command: bash -c 'if ["${ENVIRONMENT}" == "default"]; then exit 0; fi'
 
-    - name: Deploy
+    - name: Deploy Serverless
       command: npm run deploy
+
+    - name: Deploy Static Assets
+      command: aws-s3-deploy s3-bucket-name ./build /
 
 
 - name: Invalidate CloudFront

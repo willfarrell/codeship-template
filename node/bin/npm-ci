@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+set -ex
+
+# TODO
+
+# Install
+npm ci
+
+# Install extra scanners
+#npm i {scans}
+
+# Scans
+npm outdated
+npm audit
+npm run lint
+
+# Testing
+npm test
+# ensure code coverage is greater
+
+
+# after deployment to env
+#npm test:e2e
+

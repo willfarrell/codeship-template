@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+set -e
+
+if [ "${NPM_TOKEN}" != "" ]; then
+  echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
+fi
+

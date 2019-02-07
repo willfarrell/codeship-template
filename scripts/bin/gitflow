@@ -1,0 +1,50 @@
+#!/usr/bin/env sh
+
+gitflowEnv () {
+  if [ "${GIT_BRANCH}" == "master" ] && [ "${GIT_LATEST_TAG}" == "${GIT_COMMIT_TAG}" ]; then
+    echo "production"
+  elif [[ "${GIT_BRANCH}" == release/* ]] && [ "${GIT_LATEST_TAG}" == "${GIT_COMMIT_TAG}" ]; then
+    echo "staging"
+  elif [[ "${GIT_BRANCH}" == release/* ]]; then
+    echo "testing"
+  elif [ "${GIT_BRANCH}" == "develop" ]; then
+    echo "development"
+  else
+    echo ""
+  fi
+}
+
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "${GIT_BRANCH}" == "HEAD" ] && [ ! -z "${CI_BRANCH}" ]; then GIT_BRANCH=${CI_BRANCH}; fi
+GIT_COMMIT_ID=$(git rev-parse --short HEAD)
+GIT_COMMIT_HASH=$(git rev-parse HEAD)
+GIT_COMMIT_TAG=$(git tag -l --points-at HEAD)
+# if no past tags will throw exit
+GIT_LATEST_TAG=$(git describe --abbrev=0 --tags 2> /dev/null) # Broken on codeship :( # TODO git pull missing data
+
+set -e
+
+echo "Commit: '${GIT_COMMIT_ID}'; Branch: '${GIT_BRANCH}'; Tag: '${GIT_LATEST_TAG}' vs. '${GIT_COMMIT_TAG}'"
+
+ENVIRONMENT=$(gitflowEnv)
+
+# ===== VERSION ===== #
+NPM_VERSION=
+if [ -e "package.json" ]; then
+  NPM_VERSION=$(npm version patch)
+  NPM_VERSION=$(echo ${VERSION} | cut -c 2-)
+
+  if [ "${GIT_COMMIT_TAG}" != "" ] && [ "${GIT_COMMIT_TAG}" != "${NPM_VERSION}" ]; then
+    echo "Your git tag (${GIT_COMMIT_TAG}) does not match the package.json version (${NPM_VERSION}) "
+    exit 1
+  fi
+fi
+
+cat << EOF > env.gitflow
+GIT_BRANCH=${GIT_BRANCH}
+GIT_COMMIT_ID=${GIT_COMMIT_ID}
+GIT_COMMIT_HASH=${GIT_COMMIT_HASH}
+GIT_COMMIT_TAG=${GIT_COMMIT_TAG}
+ENVIRONMENT=${ENVIRONMENT}
+NPM_VERSION=${NPM_VERSION}
+EOF

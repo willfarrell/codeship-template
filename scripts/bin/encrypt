@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+if [ ! -z "${AES_PASSWORD}" ]; then echo "ENV AES_PASSOWRD missing."; exit 1; fi
+if [ "$1" == "" ]; then echo "Missing File to encrypt"; exit 1; fi
+FILE=$1
+
+encrypt () {
+  touch ${1}
+  if [ -e "${1}.encrypted" ]; then
+    echo ${AES_PASSWORD} | openssl aes-256-cbc -d -a -pass pass:secret -in ${1} -out ${1}.encrypted
+  fi
+}
+
+encrypt ./${FILE}

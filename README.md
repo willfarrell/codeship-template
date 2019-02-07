@@ -4,15 +4,15 @@ Docker images for CI/CD process
 ## Workflows
 ### React
 ```
-init -> node -> awscli
+init -> node -> aws
 ```
 ### serverless
 ```
-init -> node -> awscli
+init -> node -> aws
 ```
 ### ECS
 ```
-init -> docker -> awscli
+init -> docker -> aws
 ```
 ### terraform
 ```
@@ -39,6 +39,15 @@ npm test
 Contains the `aws-sdk cli`.
 
 ## TODO
-- bootstrap with codeship
-- docs: `jet` basics
-- docs: env encryption
+- docs
+  - `jet` basics
+  - env encryption
+- Phase I:
+  - static assets
+  - serverless
+- Phase II:
+  - docker
+  - terraform
+- Phase III
+  - terraform module aws-code-pipeline
+

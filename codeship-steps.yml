@@ -1,0 +1,27 @@
+- name: Build Base Image
+  type: serial
+  steps:
+    - service: docker
+      command: true
+
+- name: Build `scripts` Docker Image
+  type: serial
+  service: docker
+  steps:
+    - command: gitflow
+    - command: docker-connect
+    - name: Build & Push Docker Image
+      command: docker-build willfarrell/codeship-scripts ./scripts/
+
+#- name: Build CI/CD Docker Iamges
+#  type: parallel
+#  service: docker
+#  steps:
+#    - name: node
+#      command: docker-build willfarrell/codeship-node ./node/
+#    - name: docker
+#      command: docker-build willfarrell/codeship-docker ./docker/
+#    - name: aws
+#      command: docker-build willfarrell/codeship-aws ./aws/
+#    - name: terraform
+#      command: docker-build willfarrell/codeship-terraform ./terraform/

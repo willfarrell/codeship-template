@@ -1,0 +1,36 @@
+#!/usr/bin/env sh
+set -e
+
+# ENV
+. ./env.gitflow
+#. ./env.${ENVIRONMENT}
+
+# Inputs
+
+if [ -z "${1}" ]; then echo "Image name required. ie willfarrell/codeship-docker"; exit 1; fi
+
+IMAGE_NAME=$1
+DOCKERFILE_PATH=${2:-'./'}
+TAG_SUFFIX=${3:-''}
+
+echo "Building ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} from ${SOURCE_DIR}"
+
+set +e
+docker pull ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX}
+set -e
+
+docker build --tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${DOCKERFILE_PATH}
+docker images
+docker push ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX}
+
+if [ "${ENVIRONMENT}" != "" ]; then
+  docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID} ${IMAGE_NAME}:${ENVIRONMENT}${TAG_SUFFIX}
+  docker push ${IMAGE_NAME}:${ENVIRONMENT}${TAG_SUFFIX}
+fi
+
+if [ "${GIT_COMMIT_TAG}" != "" ]; then
+  docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID} ${IMAGE_NAME}:${GIT_COMMIT_TAG}${TAG_SUFFIX}
+  docker push ${IMAGE_NAME}:${GIT_COMMIT_TAG}${TAG_SUFFIX}
+fi
+
+# TODO scan image for sec issue
