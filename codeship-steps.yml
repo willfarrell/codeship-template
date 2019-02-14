@@ -9,6 +9,7 @@
   service: docker
   steps:
     - command: gitflow
+    - command: docker-env-check
     - name: Build & Push Docker Image
       command: docker-build willfarrell/codeship-scripts ./scripts/
 

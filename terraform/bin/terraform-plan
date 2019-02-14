@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+DIR=${1:-./}
+
+# ENV
+. ./env.gitflow
+if [ -e "./env.${ENVIRONMENT}" ]; then
+  . ./env.${ENVIRONMENT}
+fi
+
+# Set Dir
+cd ${DIR}
+
+# Set Workspace
+terraform workstace new ${ENVIRONMENT}
+terraform workstace select ${ENVIRONMENT}
+
+# Init
+terraform init
+
+# Plan
+terraform plan
+
+# TODO save plan to file?

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -e
+
+# ENV
+. ./env.gitflow
+if [ -e "./env.${ENVIRONMENT}" ]; then
+  . ./env.${ENVIRONMENT}
+fi
+
+# Ensure required vars a set
+if [[ ( -z "${AWS_PROFILE}") && ( -z "${AWS_ACCESS_KEY_ID}" || -z "${AWS_SECRET_ACCESS_KEY}") ]]; then
+    echo "AWS credentials are not set. AWS_PROFILE or AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are required"
+    exit 1;
+fi
+if [ -z "${AWS_REGION}" ]; then echo "AWS_REGION not set"; exit 1; fi

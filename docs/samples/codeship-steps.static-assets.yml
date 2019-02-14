@@ -4,6 +4,8 @@
     - node
   steps:
     - command: gitflow
+    - command: aws-env-check
+    - command: npm-env-check
     - name: Install Dependencies
       command: npm-ci
     - name: Build Application
@@ -14,20 +16,20 @@
   services:
     - node
   steps:
-    - name: Code Formatting Standard
+    - name: Code - Linting
       command: npm run lint
     # TODO record & compare percent
     - name: Unit & Integration Tests
       command: npm test
     # TODO record & compare count
-    - name: OSS - Outdated
+    - name: Dependencies - Outdated
       command: npm outdated
     # TODO record & compare count
-    - name: OSS - Security
+    - name: Dependencies - Security
       command: npm audit
 
     # TODO record & compare count
-    - name: Code SAST
+    - name: Code - SAST
       command: echo "TODO"
 
 - name: Save Application Build

@@ -29,13 +29,13 @@ echo "Commit: '${GIT_COMMIT_ID}'; Branch: '${GIT_BRANCH}'; Tag: '${GIT_LATEST_TA
 ENVIRONMENT=$(gitflowEnv)
 
 # ===== VERSION ===== #
-NPM_VERSION=
+APP_VERSION=
 if [ -e "package.json" ]; then
-  NPM_VERSION=$(npm version patch)
-  NPM_VERSION=$(echo ${VERSION} | cut -c 2-)
+  APP_VERSION=$(npm version patch)
+  APP_VERSION=$(echo ${APP_VERSION} | cut -c 2-)
 
-  if [ "${GIT_COMMIT_TAG}" != "" ] && [ "${GIT_COMMIT_TAG}" != "${NPM_VERSION}" ]; then
-    echo "Your git tag (${GIT_COMMIT_TAG}) does not match the package.json version (${NPM_VERSION}) "
+  if [ "${GIT_COMMIT_TAG}" != "" ] && [ "${GIT_COMMIT_TAG}" != "${APP_VERSION}" ]; then
+    echo "Your git tag (${GIT_COMMIT_TAG}) does not match the package.json version (${APP_VERSION}) "
     exit 1
   fi
 fi
@@ -46,5 +46,5 @@ GIT_COMMIT_ID=${GIT_COMMIT_ID}
 GIT_COMMIT_HASH=${GIT_COMMIT_HASH}
 GIT_COMMIT_TAG=${GIT_COMMIT_TAG}
 ENVIRONMENT=${ENVIRONMENT}
-NPM_VERSION=${NPM_VERSION}
+APP_VERSION=${APP_VERSION}
 EOF

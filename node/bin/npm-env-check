@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -e
+
+# ENV
+. ./env.gitflow
+if [ -e "./env.${ENVIRONMENT}" ]; then
+  . ./env.${ENVIRONMENT}
+fi
+
+# Ensure required vars a set
+
+if [ -z "${NPM_REGISTRY}" ]; then
+  echo "WARN: NPM_REGISTRY not set. `https://www.npmjs.com/` will be used.";
+fi
+
+if [ -z "${NPM_TOKEN}" ]; then
+  echo "WARN: NPM_TOKEN not set. only public packaged can be used.";
+fi

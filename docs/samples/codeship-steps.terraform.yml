@@ -1,0 +1,21 @@
+- name: Setup Application
+  type: serial
+  service: terraform
+  steps:
+    - command: gitflow
+    - name: Code - Linting
+      command: terraform fmt
+
+- name: Plan Deployment
+  type: serial
+  service: terraform
+  steps:
+    - command: terraform-plan
+    - name: Exit if not a deployment branch
+      command: bash -c 'if ["${ENVIRONMENT}" == "default"]; then exit 0; fi'
+
+- name: Apply Deployment
+  type: manual
+  service: terraform
+  steps:
+    - command: terraform-apply

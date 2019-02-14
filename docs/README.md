@@ -107,14 +107,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## TODO
 - Phase I:
-  - static assets
-  - serverless
+  - [x] static assets
+  - [x] serverless
 - Phase II:
-  - docker
-  - ECS
-  - terraform
+  - [x] docker
+  - [ ] ECS
+  - [x] terraform
 - Phase III
-  - terraform module aws-code-pipeline
+  - [ ] terraform module aws-code-pipeline
 
 
 ## `env`

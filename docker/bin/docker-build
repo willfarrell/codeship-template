@@ -23,9 +23,9 @@ TAG_SUFFIX=${3:-''}
 
 echo "Building ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} from ${SOURCE_DIR}"
 
-# Connent to registry
-if [ -z "${DOCKER_REGISTRY}" ]; then
-  echo "DOCKER_REGISTRY not set. Docker Hub will be used.";
+# Connect to registry
+if [ ! -z "${DOCKER_REGISTRY}" ]; then
+  # TODO connect to registry
 fi
 
 if [ ! -z "${DOCKER_USERNAME}" ] && [ ! -z "${DOCKER_PASSWORD}" ]; then

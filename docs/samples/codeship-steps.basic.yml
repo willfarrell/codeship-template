@@ -5,11 +5,11 @@
   steps:
     - command: gitflow
     - command: aws-env-check
+    - command: docker-env-check
     - command: npm-env-check
+    - command: terraform-env-check
     - name: Install Dependencies
-      command: npm-ci
     - name: Build Application
-      command: npm run build
 
 - name: CI Application
   type: parallel
@@ -17,35 +17,27 @@
     - node
   steps:
     - name: Code - Linting
-      command: npm run lint
-    # TODO record & compare percent
     - name: Unit & Integration Tests
-      command: npm test
-    # TODO record & compare count
     - name: Dependencies - Outdated
-      command: npm outdated
-    # TODO record & compare count
     - name: Dependencies - Security
-      command: npm audit
-
-    # TODO record & compare count
     - name: Code - SAST
-      command: echo "TODO"
 
 - name: Save Application Build
   type: serial
   services:
     - aws
   steps:
-    - command: echo "TODO"
+    - name: Bundle Application
+    - name: Store Bundled Application
 
 - name: Deploy Application
   type: serial
   services:
-    - node
+    - aws
   steps:
     - name: Exit if not a deployment branch
       command: bash -c 'if ["${ENVIRONMENT}" == "default"]; then exit 0; fi'
 
-    - name: Deploy Static Assets
-      command: SLS_DEBUG=* serverless deploy --verbose --force --stage="api"
+    - name: Deploy Application
+    - name: Clear Cache
+    - name: Notifications

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -e
+
+# ENV
+. ./env.gitflow
+if [ -e "./env.${ENVIRONMENT}" ]; then
+  . ./env.${ENVIRONMENT}
+fi
+
+# Ensure required vars a set
+
+if [ -z "${AWS_REGION}" ]; then echo "AWS_REGION not set"; exit 1; fi
+
+
+
+if [ -z "${DOCKER_REGISTRY}" ]; then
+  # TODO update with config value
+  cat  /home/docker/.dockercfg
+  echo "WARN: DOCKER_REGISTRY not set. `https://index.docker.io/v2/` will be used.";
+fi
+
+if [ -z "${DOCKER_USERNAME}" ] || [ -z "${DOCKER_PASSWORD}" ]; then
+  echo "WARN: DOCKER_USERNAME & DOCKER_PASSWORD not set. only public images can be used.";
+fi
