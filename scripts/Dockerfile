@@ -1,4 +1,5 @@
 FROM willfarrell/libressl:latest AS libressl
 FROM scratch
-COPY --from=libressl /libressl/ /libressl/
+# TODO include if needed for decyption
+#COPY --from=libressl /libressl/ /libressl/
 COPY bin/ /bin

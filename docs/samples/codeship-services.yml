@@ -1,0 +1,27 @@
+aws:
+  image: willfarrell/codeship-aws
+  cached: true
+  encrypted_env_file: env.encrypted
+  volumes:
+    - ./:/var/src
+
+docker:
+  image: willfarrell/codeship-docker
+  cached: true
+  encrypted_env_file: env.encrypted
+  volumes:
+    - ./:/var/src
+
+node:
+  image: willfarrell/codeship-node
+  cached: true
+  encrypted_env_file: env.encrypted
+  volumes:
+    - ./:/var/src
+
+terraform:
+  image: willfarrell/codeship-terraform
+  cached: true
+  encrypted_env_file: env.encrypted
+  volumes:
+    - ./:/var/src

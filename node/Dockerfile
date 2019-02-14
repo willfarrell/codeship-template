@@ -1,11 +1,14 @@
 FROM willfarrell/codeship-scripts AS scripts
 
 FROM node:8
-COPY --from=scripts /libressl/ /
-COPY --from=scripts /bin/ /usr/local/bin/
 
 ARG workdir=/var/src
+ARG bin=/usr/local/bin/codeship
 
-RUN export PATH=$PATH:${workdir}/node_modules/.bin
+ENV PATH="${PATH}:${bin}:${workdir}/node_modules/.bin"
+
+COPY --from=scripts /libressl/ /
+COPY --from=scripts /bin/ ${bin}/
+COPY bin/ ${bin}/
 
 WORKDIR ${workdir}

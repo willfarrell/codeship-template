@@ -12,15 +12,16 @@
     - name: Build & Push Docker Image
       command: docker-build willfarrell/codeship-scripts ./scripts/
 
-#- name: Build CI/CD Docker Images
-#  type: parallel
-#  service: docker
-#  steps:
-#    - name: node
-#      command: docker-build willfarrell/codeship-node ./node/
-#    - name: docker
-#      command: docker-build willfarrell/codeship-docker ./docker/
-#    - name: aws
-#      command: docker-build willfarrell/codeship-aws ./aws/
-#    - name: terraform
-#      command: docker-build willfarrell/codeship-terraform ./terraform/
+- name: Build CI/CD Docker Images
+  type: parallel
+  service: docker
+  steps:
+    - name: aws
+      command: docker-build willfarrell/codeship-aws ./aws/
+    - name: docker
+      command: docker-build willfarrell/codeship-docker ./docker/
+    - name: node
+      command: docker-build willfarrell/codeship-node ./node/
+    - name: terraform
+      command: docker-build willfarrell/codeship-terraform ./terraform/
+
