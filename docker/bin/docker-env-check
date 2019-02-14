@@ -9,10 +9,6 @@ fi
 
 # Ensure required vars a set
 
-if [ -z "${AWS_REGION}" ]; then echo "AWS_REGION not set"; exit 1; fi
-
-
-
 if [ -z "${DOCKER_REGISTRY}" ]; then
   # TODO update with config value
   cat  /home/docker/.dockercfg
