@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -e
+
+if [ ! -e "${1}" ]; then echo "project dir not found"; exit 1; fi
+
+cd ${1}
+
+gradle -PdisablePreDex clean
+gradle -PdisablePreDex lint
+gradle -PdisablePreDex buildEnvironment

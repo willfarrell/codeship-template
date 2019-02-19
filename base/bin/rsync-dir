@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+set -e
+
+SOURCE=${1:-src}
+TARGET=${2:-build}
+
+rsync -a --stats --delete-after ${SOURCE}/ ${TARGET}/

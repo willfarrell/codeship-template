@@ -1,14 +1,22 @@
+# General Template
+# Static Templates: TODO
+# SPA AngularJS:
+# SPA Angular:
+# SPA React: willfarrell/craft-intl-material
+# SPA Vue: TODO
+
 - name: Build Application
   type: serial
   services:
     - node
   steps:
-    - command: gitflow
+    - command: setup-env
+    - command: npm-version
     - command: aws-env-check
     - command: npm-env-check
     - name: Install Dependencies
-      command: npm-ci
-    - name: Build Application
+      command: npm ci
+    - name: Build Single Page Application
       command: npm run build
 
 - name: CI Application
@@ -45,10 +53,10 @@
     - aws
   steps:
     - name: Exit if not a deployment branch
-      command: bash -c 'if ["${ENVIRONMENT}" == "default"]; then exit 0; fi'
+      command: sh -c 'if ["${ENVIRONMENT}" == ""]; then exit 0; fi'
 
     - name: Deploy Static Assets
-      command: aws-s3-deploy __S3_BUCKET_NAME__ ./build /
+      command: sh -c 'aws-s3-deploy app-${ENVIRONMENT}-static-assets ./build /'
 
     - name: CDN Invalidation
       command: aws cloudfront create-invalidation --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths /*

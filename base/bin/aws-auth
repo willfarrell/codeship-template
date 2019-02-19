@@ -1,0 +1,34 @@
+#!/usr/bin/env sh
+set -e
+
+AWS_DEFAULT_PROFILE="${AWS_PROFILE_NAME:-codeship}"
+if [ ! -e "${HOME}/.aws" ]; then mkdir "${HOME}/.aws"; fi
+
+echo "" > ${HOME}/.aws/credentials
+cat << EOF >> ${HOME}/.aws/credentials
+
+[${AWS_DEFAULT_PROFILE}]
+aws_access_key_id = ${AWS_ACCESS_KEY_ID}
+aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
+region = ${AWS_DEFAULT_REGION}
+EOF
+
+if [ ! -z "${AWS_ACCOUNT_ID}" ]; then
+  cat << EOF >> ${HOME}/.aws/credentials
+
+[${AWS_DEFAULT_PROFILE}-${ENVIRONMENT}]
+source_profile = ${AWS_DEFAULT_PROFILE}
+role_arn = arn:aws:iam::${AWS_ACCOUNT_ID}:role/${AWS_ASSUME_ROLE:-admin}
+session_name = codeship-${ENVIRONMENT}
+EOF
+
+  AWS_DEFAULT_PROFILE="${AWS_DEFAULT_PROFILE}-${ENVIRONMENT}"
+fi
+
+cat << EOF >>.tmp/env
+# aws-auth
+AWS_DEFAULT_PROFILE=${AWS_DEFAULT_PROFILE}
+EOF
+
+# Testing AWS User
+aws sts get-caller-identity --profile ${AWS_DEFAULT_PROFILE}

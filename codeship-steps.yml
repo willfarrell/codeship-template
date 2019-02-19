@@ -1,28 +1,37 @@
-- name: Build Base Image
+- name: Build Base Images
   type: serial
   steps:
+    - service: base
+      command: true
     - service: docker
       command: true
 
-- name: Build `scripts` Docker Image
+- name: Setup
+  type: serial
+  service: base
+  steps:
+    - command: setup-env
+
+- name: Setup Docker
   type: serial
   service: docker
   steps:
-    - command: gitflow
     - command: docker-env-check
-    - name: Build & Push Docker Image
-      command: docker-build willfarrell/codeship-scripts ./scripts/
+    - command: docker-auth
+    - command: sh -c 'cd ~ && pwd'
 
 - name: Build CI/CD Docker Images
   type: parallel
   service: docker
   steps:
+#    - name: base
+#      command: docker-build willfarrell/codeship-base ./base/
     - name: aws
       command: docker-build willfarrell/codeship-aws ./aws/
-    - name: docker
-      command: docker-build willfarrell/codeship-docker ./docker/
-    - name: node
-      command: docker-build willfarrell/codeship-node ./node/
-    - name: terraform
-      command: docker-build willfarrell/codeship-terraform ./terraform/
+#    - name: docker
+#      command: docker-build willfarrell/codeship-docker ./docker/
+#    - name: node
+#      command: docker-build willfarrell/codeship-node ./node/
+#    - name: terraform
+#      command: docker-build willfarrell/codeship-terraform ./terraform/
 

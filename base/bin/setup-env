@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+if [ ! -e ".tmp" ]; then mkdir .tmp; fi
+echo "" > .tmp/env
+setup-gitflow
+. .tmp/env
+setup-environment ${ENVIRONMENT}
+
+# option: store in /etc/environment

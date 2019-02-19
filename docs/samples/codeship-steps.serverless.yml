@@ -1,13 +1,18 @@
+# General Template
+# NodeJS: willfarrell/serverless-template
+# go: TODO
+
 - name: Build Application
   type: serial
   services:
     - node
   steps:
-    - command: gitflow
+    - command: setup-env
+    - command: npm-version
     - command: aws-env-check
     - command: npm-env-check
     - name: Install Dependencies
-      command: npm-ci
+      command: npm ci
     - name: Build Application
       command: npm run build
 
@@ -45,7 +50,7 @@
     - node
   steps:
     - name: Exit if not a deployment branch
-      command: bash -c 'if ["${ENVIRONMENT}" == "default"]; then exit 0; fi'
+      command: sh -c 'if ["${ENVIRONMENT}" == "default"]; then exit 0; fi'
 
     - name: Deploy Static Assets
       command: SLS_DEBUG=* serverless deploy --verbose --force --stage="api"

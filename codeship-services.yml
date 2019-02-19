@@ -1,10 +1,22 @@
-docker:
+base:
   build:
-    image: codeship-docker
-    context: docker
+    image: willfarrell/codeship-base
+    context: base
     dockerfile_path: Dockerfile
-  cached: true
+  cached: false
   encrypted_env_file: env.encrypted
   volumes:
+    - ./:/data
+
+docker:
+  build:
+    image: willfarrell/codeship-docker
+    context: docker
+    dockerfile_path: Dockerfile
+  cached: false
+  encrypted_env_file: env.encrypted
+  env_file: .tmp/env
+  volumes:
     - /var/run/docker.sock:/var/run/docker.sock
-    - ./:/var/src
+    - .tmp/.docker/:/root/.docker
+    - ./:/data

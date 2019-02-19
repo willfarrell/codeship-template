@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+set -e
+
+# Ensure required vars a set
+#if [ -z "${DOCKER_REGISTRY}" ]; then
+#  echo "INFO: DOCKER_REGISTRY not set. 'index.docker.io' will be used.";
+#fi
+
+if [ -z "${DOCKER_USERNAME}" ] || [ -z "${DOCKER_PASSWORD}" ]; then
+  echo "INFO: DOCKER_USERNAME || DOCKER_PASSWORD not set. Only public images can be used.";
+fi
+
+# Build config file
+
+

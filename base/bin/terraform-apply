@@ -2,12 +2,6 @@
 
 DIR=${1:-./}
 
-# ENV
-. ./env.gitflow
-if [ -e "./env.${ENVIRONMENT}" ]; then
-  . ./env.${ENVIRONMENT}
-fi
-
 # Set Dir
 cd ${DIR}
 

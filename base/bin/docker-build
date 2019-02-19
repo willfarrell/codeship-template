@@ -1,17 +1,11 @@
 #!/usr/bin/env sh
 
-function finish {
-  docker logout
-}
-trap finish EXIT
+#function finish {
+  #docker logout
+#}
+#trap finish EXIT
 
 set -e
-
-# ENV
-. ./env.gitflow
-if [ -e "./env.${ENVIRONMENT}" ]; then
-  . ./env.${ENVIRONMENT}
-fi
 
 # Inputs
 
@@ -23,17 +17,12 @@ TAG_SUFFIX=${3:-''}
 
 echo "Building ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} from ${SOURCE_DIR}"
 
-# Connect to registry
-if [ ! -z "${DOCKER_REGISTRY}" ]; then
-  # TODO connect to registry
-fi
-
-if [ ! -z "${DOCKER_USERNAME}" ] && [ ! -z "${DOCKER_PASSWORD}" ]; then
-  echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin ${DOCKER_REGISTRY}
-  # TODO make more secure see https://www.passwordstore.org/
+#if [ ! -z "${DOCKER_USERNAME}" ] && [ ! -z "${DOCKER_PASSWORD}" ]; then
+  #DOCKER_REGISTRY=${DOCKER_REGISTRY:-'index.docker.io'}
+  #echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
   # WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
   # https://docs.docker.com/engine/reference/commandline/login/#credentials-store
-fi
+#fi
 
 # Pull if exists
 set +e
@@ -66,4 +55,4 @@ fi
 
 # TODO scan image for sec issue
 
-finish
+#finish

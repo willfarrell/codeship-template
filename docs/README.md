@@ -12,84 +12,86 @@ Docker images for CI/CD process and how to get started.
 - `codeship-services.yml` contains the containers you're going to use
 - `codeship-steps.yml` contains the build/deploy orchestration 
 - You can run the CI/CD locally with `jet steps`
+- You can encrypt your `env` file by running `jet encrypt env env.encrypted`
+
+### `.gitignore`
+```bash
+# CI/CD
+.env
+env*
+codeship.aes
+!*.encrypted
+.tmp
+```
+
+### What you need
+Copy the following files from `/docs/samples` into the root of your repo.
+- `codeship-services.yml`
+- `codeship-steps.{one of}.yml`
+- `env`
 
 ## Deployment Workflows
 ### Static Assets (Angular/React/Vue) -> AWS S3
-```
-init -> node -> aws
-```
-
-
-### serverless
-```
-init -> node -> aws
-```
-### ECS
-```
-init -> docker -> aws
-```
+### serverless -> AWS
+### docker -> AWS ECS
 ### terraform
-```
-init -> terraform -> [Approve] -> terraform
-```
+
 
 ## Containers
-### init [CI]
+### scripts
 Collection of re-usable scripts
 
-### docker [CI]
+### docker
 Everything you need to build, scan, and push to any repository.
 
-### node [CI]
-setup up NPM_TOKEN, if needed then runs:
-```bash
-npm ci
-npm outdated
-npm audit
-npm run lint
-npm test
-```
+### node
 
-### aws [CD]
+
+### aws
 Contains the `aws-sdk cli`.
 
-### terraform [CD]
+### terraform
 Contains the `terraform cli`
 
+## Scripts
 
-## Docker Registries
-How to set up a repository to receive the built docker image. It is suggested to create a bot user just for CI purposes.
+### Global
+- **setup-env:**
+  - **setup-environment:**
+  - **setup-gitflow:**
 
-### Docker Hub/Cloud
-1. Got to [Repositories](https://cloud.docker.com/u/)
-1. Press `Create Repository`
-1. Enter `Name` & `Description` and press `Create`
-1. Press `Collaborators` and add the id of the user that will be running the builds
+### Android
 
-### AWS ECR
-1. Add the following to your `terraform`
-```hcl-terraform
-resource "aws_ecr_repository" "foo" {
-  name = "bar"
-}
-output "ecr_repository_url" {
-  value = "${aws_ecr_repository.foo.repository_url}"
-}
-```
-2. Copy the url into your `env.encrypted`
+
+### AWS
+- **aws-env-check:** Checks that the necessary `env` are set to execute `aws-*` scripts.
+- **aws-auth:** Sets credentials to allow connection to AWS.
+- **aws-s3-deploy:** Deploys static assets to a S3 bucket.
+
+### docker
+- **docker-env-check:** Checks that the necessary `env` are set to execute `docker-*` scripts.
+- **docker-auth:** Sets credentials to allow connection to private docker registry.
+- **docker-build:** Builds docker image and pushes to registry.
+
+### npm
+- **npm-env-check:** Checks that the necessary `env` are set to execute `npm-*` scripts.
+- **npm-auth:** Sets credentials to allow connection to private npm registry.
+- **npm-version:** Pull version from `package.json` and applies to `env`.
+
+### terraform
+- **terraform-:** TODO
 
 
 ## Built With
 
-* [CodeShip Jet CLI](https://documentation.codeship.com/pro/jet-cli/usage-overview/) - CI/CD CLI
+* [CodeShip Jet](https://documentation.codeship.com/pro/jet-cli/usage-overview/) - CI/CD CLI
 * [Docker](http://www.dropwizard.io/1.0.2/docs/) - Linux Containers
 * [HashiCorp Terraform](https://www.terraform.io/) - Infrastructure as Code
 
-<!--
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
--->
+Please read [CONTRIBUTING.md](https://www.contributor-covenant.org/version/1/4/code-of-conduct) for details on our code of conduct, and the process for submitting pull requests to us.
+
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/willfarrell/codeship-template/tags). 
@@ -115,37 +117,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   - [x] terraform
 - Phase III
   - [ ] terraform module aws-code-pipeline
-
-
-## `env`
-```bash
-# Setup ENV
-AES_PASSWORD=
-
-
-# Build NodeJS
-NPM_TOKEN=
-
-
-# Build Docker
-DOCKER_REGISTRY=
-DOCKER_USERNAME=
-DOCKER_PASSWORD=
-
-# Deploy
-AWS_REGION=
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-```
-
-## `env.{development,teesting,staging,production}`
-```bash
-# React
-REACT_APP_COMMIT_HASH=${GIT_COMMIT_HASH}
-REACT_APP_VERSION=
-
-# awscli
-# TODO assume roles ENV
-AWS_ACCOUNT_ID=
-AWS_ASSUME_ROLE=
-```

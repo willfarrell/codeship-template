@@ -1,0 +1,20 @@
+- name: Build Base Image
+  type: serial
+  steps:
+    - service: docker
+      command: true
+
+- name: Setup
+  type: serial
+  service: docker
+  steps:
+    - command: setup-env
+    - command: docker-env-check
+
+- name: Build CI/CD Docker Images
+  type: parallel
+  service: docker
+  steps:
+    - name: name
+      command: docker-build org/name ./
+

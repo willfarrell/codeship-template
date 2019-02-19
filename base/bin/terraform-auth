@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+# TODO
+TERRAFORM_REGISTRY=${TERRAFORM_REGISTRY:-registry.terraform.io}
+
+# https://www.terraform.io/docs/enterprise/registry/using.html
+#TERRAFORM_TOKEN

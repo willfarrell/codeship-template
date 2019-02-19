@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+set -e
+
+DIR=${1:-.}
+
+APP_VERSION=
+if [ -e "${DIR}/package.json" ]; then
+  # Can be done with `npm version patch` but causes issues with `git`
+  APP_VERSION=$(cat "${DIR}/package.json" | grep "version")
+  APP_VERSION="${APP_VERSION//[\",]/}"
+  APP_VERSION=v$(echo ${APP_VERSION} | cut -c 10-)
+
+  if [ "${GIT_COMMIT_TAG}" != "" ] && [ "${GIT_COMMIT_TAG}" != "${APP_VERSION}" ]; then
+    echo "Your git tag (${GIT_COMMIT_TAG}) does not match the package.json version (${APP_VERSION}) "
+    exit 1
+  fi
+fi
+
+
+cat << EOF >> env.gitflow
+APP_VERSION=${APP_VERSION}
+EOF

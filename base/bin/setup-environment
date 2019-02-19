@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+set -e
+
+ENVIRONMENT=${1:-}
+
+echo "# setup-environment" >> .tmp/env
+while IFS='=' read -r name value; do
+  #echo "$name => $value"
+
+  # TODO refactor into a function
+  if [ "${name}" == "PATH" ] || [ "${name}" == "PWD" ] || [ "${name}" == "HOME" ]; then
+      # Never override core ENV
+      key=""
+  elif [ "${name}" == "${name%\[*\]}" ]; then
+      # Global Variable, Skip
+      key="${name}"
+  elif [ "${name}" != "${name%\[${ENVIRONMENT}\]}" ]; then
+      # ${ENVIRONMENT} Variable
+      key="${name%\[${ENVIRONMENT}\]}"
+  elif [ "${name}" != "${name%\[*\]}" ]; then
+      # Not ${ENVIRONMENT} Variable, Skip
+      key=""
+  else
+      echo "unexpected env found: ${name}"
+      key=""
+  fi
+
+  if [ "${key}" != "" ]; then
+    if [ "${value//[0-9a-zA-Z._]/}" == "" ]; then
+      # Only store clean values without quotes
+      echo "${key}=${value}" >> .tmp/env
+    else
+      # Wrap dirty values in quotes
+      echo "${key}=\"${value}\"" >> .tmp/env
+    fi
+  fi
+done <<EOF
+$(env)
+EOF

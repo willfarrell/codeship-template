@@ -1,14 +1,5 @@
-FROM willfarrell/codeship-scripts AS scripts
+FROM willfarrell/codeship-base
 
-FROM hashicorp/terraform:0.11.11
+RUN apk add --no-cache terraform
 
-ARG workdir=/var/src
-ARG bin=/usr/local/bin/codeship
-
-ENV PATH="${PATH}:${bin}"
-
-COPY --from=scripts /libressl/ /
-COPY --from=scripts /bin/ ${bin}/
-COPY bin/ ${bin}/
-
-WORKDIR ${workdir}
+# UPDATE to allow multi versions: https://github.com/broadinstitute/docker-terraform/blob/master/Dockerfile

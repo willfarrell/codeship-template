@@ -1,11 +1,15 @@
+- name: Setup CI/CD
+  type: serial
+  service: setup
+  steps:
+    - command: setup-env
+
 - name: Build Application
   type: serial
-  services:
-    - node
+  service: node
   steps:
-    - command: gitflow
-    - command: aws-env-check
-    - command: docker-env-check
+    - command: setup-env
+    - command: npm-version
     - command: npm-env-check
     - command: terraform-env-check
     - name: Install Dependencies
@@ -13,8 +17,7 @@
 
 - name: CI Application
   type: parallel
-  services:
-    - node
+  service: node
   steps:
     - name: Code - Linting
     - name: Unit & Integration Tests
@@ -24,19 +27,18 @@
 
 - name: Save Application Build
   type: serial
-  services:
-    - aws
+  service: aws
   steps:
+    - command: aws-env-check
     - name: Bundle Application
     - name: Store Bundled Application
 
 - name: Deploy Application
   type: serial
-  services:
-    - aws
+  service: aws
   steps:
     - name: Exit if not a deployment branch
-      command: bash -c 'if ["${ENVIRONMENT}" == "default"]; then exit 0; fi'
+      command: sh -c 'if ["${ENVIRONMENT}" == "default"]; then exit 0; fi'
 
     - name: Deploy Application
     - name: Clear Cache

@@ -1,17 +1,4 @@
-FROM willfarrell/codeship-scripts AS scripts
-
-FROM alpine:3.9
-
-ARG workdir=/var/src
-ARG bin=/usr/local/bin/codeship
-
-ENV PATH="${PATH}:${bin}"
-
-COPY --from=scripts /libressl/ /
-COPY --from=scripts /bin/ ${bin}/
-COPY bin/ ${bin}/
-
-WORKDIR ${workdir}
+FROM willfarrell/codeship-base
 
 # Install aws cli and supporting cli
 
@@ -25,7 +12,7 @@ ARG s3cmd=2.0.2
 # Pushing docker-compose files to ECS
 ARG ecs-cli=1.12.1
 
-RUN apk -v --update add \
+RUN apk add --no-cache \
         python \
         py-pip \
         curl \
@@ -38,9 +25,6 @@ RUN apk -v --update add \
         s3cmd==${s3cmd} \
         python-magic && \
     curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v${ecs-cli} && \
-    apk -v --purge del py-pip curl && \
-    rm /var/cache/apk/*
+    apk -v --purge del py-pip curl
 
 # TODO verify ecs-cli signature
-
-ENTRYPOINT ["aws"]

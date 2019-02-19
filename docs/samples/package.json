@@ -1,0 +1,23 @@
+{
+  "name": "app",
+  "version": "0.0.1",
+  "description": "",
+  "main": "",
+  "private": true,
+  "scripts": {
+    "lint": "echo \"Error: no lint specified\" && exit 0",
+    "build": "echo \"Error: no build specified\" && exit 0",
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "deploy": "echo \"Error: no deploy specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://username@github.com/org/repo_name.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/org/repo_name/issues"
+  },
+  "homepage": "https://github.com/org/repo_name#readme"
+}

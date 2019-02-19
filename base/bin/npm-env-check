@@ -1,16 +1,10 @@
 #!/usr/bin/env sh
 set -e
 
-# ENV
-. ./env.gitflow
-if [ -e "./env.${ENVIRONMENT}" ]; then
-  . ./env.${ENVIRONMENT}
-fi
-
 # Ensure required vars a set
 
 if [ -z "${NPM_REGISTRY}" ]; then
-  echo "WARN: NPM_REGISTRY not set. `https://www.npmjs.com/` will be used.";
+  echo "WARN: NPM_REGISTRY not set. 'registry.npmjs.org' will be used.";
 fi
 
 if [ -z "${NPM_TOKEN}" ]; then
