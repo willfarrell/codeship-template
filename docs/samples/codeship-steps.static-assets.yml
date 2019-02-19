@@ -5,13 +5,17 @@
 # SPA React: willfarrell/craft-intl-material
 # SPA Vue: TODO
 
+- name: Setup CI/CD
+  type: serial
+  service: base
+  steps:
+    - command: setup-env
+
 - name: Build Application
   type: serial
   service: node
   steps:
-    - command: setup-env
     - command: npm-version
-    - command: aws-env-check
     - command: npm-env-check
     - name: Install Dependencies
       command: npm ci
@@ -24,7 +28,7 @@
   steps:
     - name: Code - Linting
       command: npm run lint
-    # TODO record & compare percent
+    # TODO record & compare coverage percent
     - name: Unit & Integration Tests
       command: npm test
     # TODO record & compare count
@@ -42,7 +46,8 @@
   type: serial
   service: aws
   steps:
-    - command: echo "TODO"
+    - command: aws-env-check
+    - command: aws-auth
 
 - name: Deploy Application
   type: serial
@@ -52,7 +57,7 @@
       command: sh -c 'if ["${ENVIRONMENT}" == ""]; then exit 1; fi'
 
     - name: Deploy Static Assets
-      command: sh -c 'aws-s3-deploy app-${ENVIRONMENT}-static-assets ./build /'
+      command: sh -c 'aws-s3-deploy app-${ENVIRONMENT}-static-assets ./build ${BASE_PATH}/'
 
     - name: CDN Invalidation
-      command: sh -c 'aws cloudfront create-invalidation --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths /*  --profile ${AWS_DEFAULT_PROFILE}'
+      command: sh -c 'aws cloudfront create-invalidation --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths ${BASE_PATH}/*  --profile ${AWS_DEFAULT_PROFILE}'
