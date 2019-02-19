@@ -4,8 +4,7 @@
 
 - name: Build Application
   type: serial
-  services:
-    - node
+  service: node
   steps:
     - command: setup-env
     - command: npm-version
@@ -18,8 +17,7 @@
 
 - name: CI Application
   type: parallel
-  services:
-    - node
+  service:  node
   steps:
     - name: Code - Linting
       command: npm run lint
@@ -39,18 +37,16 @@
 
 - name: Save Application Build
   type: serial
-  services:
-    - aws
+  service: aws
   steps:
     - command: echo "TODO"
 
 - name: Deploy Application
   type: serial
-  services:
-    - node
+  service: node
   steps:
     - name: Exit if not a deployment branch
-      command: sh -c 'if ["${ENVIRONMENT}" == "default"]; then exit 0; fi'
+      command: sh -c 'if ["${ENVIRONMENT}" == "default"]; then exit 1; fi'
 
     - name: Deploy Static Assets
       command: SLS_DEBUG=* serverless deploy --verbose --force --stage="api"

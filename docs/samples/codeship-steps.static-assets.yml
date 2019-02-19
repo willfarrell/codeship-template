@@ -7,8 +7,7 @@
 
 - name: Build Application
   type: serial
-  services:
-    - node
+  service: node
   steps:
     - command: setup-env
     - command: npm-version
@@ -21,8 +20,7 @@
 
 - name: CI Application
   type: parallel
-  services:
-    - node
+  service: node
   steps:
     - name: Code - Linting
       command: npm run lint
@@ -42,21 +40,19 @@
 
 - name: Save Application Build
   type: serial
-  services:
-    - aws
+  service: aws
   steps:
     - command: echo "TODO"
 
 - name: Deploy Application
   type: serial
-  services:
-    - aws
+  service:  aws
   steps:
     - name: Exit if not a deployment branch
-      command: sh -c 'if ["${ENVIRONMENT}" == ""]; then exit 0; fi'
+      command: sh -c 'if ["${ENVIRONMENT}" == ""]; then exit 1; fi'
 
     - name: Deploy Static Assets
       command: sh -c 'aws-s3-deploy app-${ENVIRONMENT}-static-assets ./build /'
 
     - name: CDN Invalidation
-      command: aws cloudfront create-invalidation --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths /*
+      command: sh -c 'aws cloudfront create-invalidation --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths /*  --profile ${AWS_DEFAULT_PROFILE}'

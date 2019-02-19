@@ -8,5 +8,5 @@ if [ -z "${NPM_REGISTRY}" ]; then
 fi
 
 if [ -z "${NPM_TOKEN}" ]; then
-  echo "WARN: NPM_TOKEN not set. only public packaged can be used.";
+  echo "WARN: NPM_TOKEN not set. only public packages can be used.";
 fi

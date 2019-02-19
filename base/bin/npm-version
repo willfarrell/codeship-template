@@ -17,6 +17,6 @@ if [ -e "${DIR}/package.json" ]; then
 fi
 
 
-cat << EOF >> env.gitflow
+cat << EOF >> .tmp/env
 APP_VERSION=${APP_VERSION}
 EOF

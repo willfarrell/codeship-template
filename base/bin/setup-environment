@@ -4,26 +4,30 @@ set -e
 ENVIRONMENT=${1:-}
 
 echo "# setup-environment" >> .tmp/env
+
+function makeKey {
+  name=$1
+  value=$2
+
+  if [ "${name}" == "PATH" ]; then return; fi
+  if [ "${name}" == "PWD" ]; then return; fi
+  if [ "${name}" == "HOME" ]; then return; fi
+  if [ "${name}" == "TERM" ]; then return; fi
+  if [ "${name}" == "SHLVL" ]; then return; fi
+
+  # Global Variable
+  if [ "${name}" == "${name%\[*\]}" ]; then  echo "${name}"; return; fi
+
+  # ${ENVIRONMENT} Variable
+  if [ "${name}" != "${name%\[${ENVIRONMENT}\]}" ]; then echo "${name%\[${ENVIRONMENT}\]}"; return; fi
+
+  return
+}
+
 while IFS='=' read -r name value; do
   #echo "$name => $value"
 
-  # TODO refactor into a function
-  if [ "${name}" == "PATH" ] || [ "${name}" == "PWD" ] || [ "${name}" == "HOME" ]; then
-      # Never override core ENV
-      key=""
-  elif [ "${name}" == "${name%\[*\]}" ]; then
-      # Global Variable, Skip
-      key="${name}"
-  elif [ "${name}" != "${name%\[${ENVIRONMENT}\]}" ]; then
-      # ${ENVIRONMENT} Variable
-      key="${name%\[${ENVIRONMENT}\]}"
-  elif [ "${name}" != "${name%\[*\]}" ]; then
-      # Not ${ENVIRONMENT} Variable, Skip
-      key=""
-  else
-      echo "unexpected env found: ${name}"
-      key=""
-  fi
+  key=$(makeKey ${name} ${value})
 
   if [ "${key}" != "" ]; then
     if [ "${value//[0-9a-zA-Z._]/}" == "" ]; then
