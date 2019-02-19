@@ -17,13 +17,17 @@
 
 - name: CI Application
   type: parallel
-  service: node
   steps:
     - name: Code - Linting
+      service: node
     - name: Unit & Integration Tests
+      service: node
     - name: Dependencies - Outdated
+      service: node
     - name: Dependencies - Security
+      service: node
     - name: Code - SAST
+      service: node
 
 - name: Save Application Build
   type: serial

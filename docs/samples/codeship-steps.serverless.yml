@@ -17,22 +17,26 @@
 
 - name: CI Application
   type: parallel
-  service:  node
   steps:
     - name: Code - Linting
+      service: node
       command: npm run lint
     # TODO record & compare percent
     - name: Unit & Integration Tests
+      service: node
       command: npm test
     # TODO record & compare count
     - name: Dependencies - Outdated
+      service: node
       command: npm outdated
     # TODO record & compare count
     - name: Dependencies - Security
+      service: node
       command: npm audit
 
     # TODO record & compare count
     - name: Code - SAST
+      service: node
       command: echo "TODO"
 
 - name: Save Application Build
