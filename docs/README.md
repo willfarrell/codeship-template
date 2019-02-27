@@ -117,3 +117,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   - [x] terraform
 - Phase III
   - [ ] terraform module aws-code-pipeline
+- [ ] ensure all images have a USER line

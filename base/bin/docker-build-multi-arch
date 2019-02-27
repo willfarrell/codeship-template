@@ -50,12 +50,6 @@ fi
 
 ## :v0.0.0
 if [ "${GIT_COMMIT_TAG}" != "" ]; then
-  # TODO tag 0.0, 0
-  # TODO strip v
-  docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${IMAGE_NAME}:${GIT_COMMIT_TAG}${TAG_SUFFIX}
-  docker push ${IMAGE_NAME}:${GIT_COMMIT_TAG}${TAG_SUFFIX}
-elif [ "${GIT_COMMIT_TAG}" != "" ]; then
-  # Apply tag as is
   docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${IMAGE_NAME}:${GIT_COMMIT_TAG}${TAG_SUFFIX}
   docker push ${IMAGE_NAME}:${GIT_COMMIT_TAG}${TAG_SUFFIX}
 fi

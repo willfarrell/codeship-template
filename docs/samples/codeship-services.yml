@@ -11,7 +11,7 @@ aws:
   encrypted_env_file: env.encrypted
   env_file: .tmp/env
   volumes_from:
-    - setup
+    - base
   volumes:
     - .tmp/.aws/:/root/.aws
 
@@ -21,7 +21,7 @@ docker:
   encrypted_env_file: env.encrypted
   env_file: .tmp/env
   volumes_from:
-    - setup
+    - base
   volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     - .tmp/.docker/:/root/.docker
@@ -32,7 +32,18 @@ node:
   encrypted_env_file: env.encrypted
   env_file: .tmp/env
   volumes_from:
-    - setup
+    - base
+
+# deploy only
+serverless:
+  image: willfarrell/codeship-serverless
+  cached: true
+  encrypted_env_file: env.encrypted
+  env_file: .tmp/env
+  volumes_from:
+    - base
+  volumes:
+    - .tmp/.aws/:/root/.aws
 
 terraform:
   image: willfarrell/codeship-terraform
@@ -40,4 +51,4 @@ terraform:
   encrypted_env_file: env.encrypted
   env_file: .tmp/env
   volumes_from:
-    - setup
+    - base

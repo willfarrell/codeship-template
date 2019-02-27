@@ -2,18 +2,20 @@
 # NodeJS: willfarrell/serverless-template
 # go: TODO
 
+- name: Setup CI/CD
+  type: serial
+  service: base
+  steps:
+    - command: setup-env
+
 - name: Build Application
   type: serial
   service: node
   steps:
-    - command: setup-env
     - command: npm-version
-    - command: aws-env-check
     - command: npm-env-check
     - name: Install Dependencies
       command: npm ci
-    - name: Build Application
-      command: npm run build
 
 - name: CI Application
   type: parallel
@@ -25,6 +27,9 @@
     - name: Unit & Integration Tests
       service: node
       command: npm test
+    - name: NPM Networking & Permissions
+      service: node
+      command: npm doctor
     # TODO record & compare count
     - name: Dependencies - Outdated
       service: node
@@ -34,23 +39,19 @@
       service: node
       command: npm audit
 
-    # TODO record & compare count
-    - name: Code - SAST
-      service: node
-      command: echo "TODO"
-
 - name: Save Application Build
   type: serial
   service: aws
   steps:
-    - command: echo "TODO"
+    - command: aws-env-check
+    - command: aws-auth
 
 - name: Deploy Application
   type: serial
   service: node
   steps:
     - name: Exit if not a deployment branch
-      command: sh -c 'if ["${ENVIRONMENT}" == "default"]; then exit 1; fi'
+      command: sh -c 'if [ "${ENVIRONMENT}" == "" ]; then exit 1; fi'
 
     - name: Deploy Static Assets
-      command: SLS_DEBUG=* serverless deploy --verbose --force --stage="api"
+      command: sh -c 'SLS_DEBUG=* serverless deploy --verbose --force --stage="api" --profile="${AWS_DEFAULT_PROFILE}"'

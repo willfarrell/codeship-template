@@ -69,3 +69,6 @@ typings/
 # IDE
 .idea
 *.iml
+
+# OS
+.DS_Store

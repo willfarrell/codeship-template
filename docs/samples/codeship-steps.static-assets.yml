@@ -17,6 +17,7 @@
   steps:
     - command: npm-version
     - command: npm-env-check
+    - command: npm-auth
     - name: Install Dependencies
       command: npm ci
     - name: Build Single Page Application
@@ -36,15 +37,14 @@
     - name: Dependencies - Outdated
       service: node
       command: npm outdated
+    # TODO move to right position & review
+    - name: NPM Networking & Permissions
+      service: node
+      command: npm doctor
     # TODO record & compare count
     - name: Dependencies - Security
       service: node
       command: npm audit
-
-    # TODO record & compare count
-    - name: Code - SAST
-      service: node
-      command: echo "TODO"
 
 - name: Save Application Build
   type: serial
@@ -58,7 +58,7 @@
   service:  aws
   steps:
     - name: Exit if not a deployment branch
-      command: sh -c 'if ["${ENVIRONMENT}" == ""]; then exit 1; fi'
+      command: sh -c 'if [ "${ENVIRONMENT}" == "" ]; then exit 1; fi'
 
     - name: Deploy Static Assets
       command: sh -c 'aws-s3-deploy app-${ENVIRONMENT}-static-assets ./build ${BASE_PATH}/'

@@ -27,20 +27,20 @@ ARG ANDROID_LICENSE="24333f8a63b6825ea9c5514f83c2829b004d1fee"
 ENV PATH="${PATH}:${bin}:${ANDROID_HOME}/tools/bin"
 
 # Download Android SDK
-RUN mkdir "$ANDROID_HOME" .android \
-    && cd "$ANDROID_HOME" \
-    && curl -o sdk.zip ${SDK_URL} \
-    && unzip sdk.zip \
-    && rm sdk.zip \
-    && mkdir "${ANDROID_HOME}/licenses" || true \
-    && echo "${ANDROID_LICENSE}" > "${ANDROID_HOME}/licenses/android-sdk-license"
+RUN mkdir "$ANDROID_HOME" .android && \
+    cd "$ANDROID_HOME" && \
+    curl -o sdk.zip ${SDK_URL} && \
+    unzip sdk.zip && \
+    rm sdk.zip && \
+    mkdir "${ANDROID_HOME}/licenses" || true && \
+    echo "${ANDROID_LICENSE}" > "${ANDROID_HOME}/licenses/android-sdk-license"
 
 # Install Android Build Tool and Libraries
-RUN sdkmanager --update \
-    && sdkmanager "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
+RUN sdkmanager --update && \
+    sdkmanager "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
        "platforms;android-${ANDROID_VERSION}" \
-       "platform-tools" \
-    && yes | sdkmanager --licenses
+       "platform-tools" && \
+    yes | sdkmanager --licenses
 
 # Install Build Essentials
 RUN apk add --no-cache build-base
