@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -ex
+set -e
 
 # Defaults
 CACHE_CONTROL="--cache-control \"max-age=3600\""
