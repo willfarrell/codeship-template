@@ -9,7 +9,6 @@
   service: base
   steps:
     - command: setup-env
-    - command: dotenv-make
 
 - name: Build Docker Image
   type: serial
