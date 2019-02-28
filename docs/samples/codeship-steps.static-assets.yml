@@ -18,6 +18,7 @@
     - command: npm-version
     - command: npm-env-check
     - command: npm-auth
+    - command: dotenv-make
     - name: Install Dependencies
       command: npm ci
     - name: Build Single Page Application
@@ -61,7 +62,4 @@
       command: sh -c 'if [ "${ENVIRONMENT}" == "" ]; then exit 1; fi'
 
     - name: Deploy Static Assets
-      command: sh -c 'aws-s3-deploy app-${ENVIRONMENT}-static-assets ./build ${BASE_PATH}/'
-
-    - name: CDN Invalidation
-      command: sh -c 'aws cloudfront create-invalidation --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths ${BASE_PATH}/*  --profile ${AWS_DEFAULT_PROFILE}'
+      command: sh -c 'aws-s3-deploy app-${ENVIRONMENT}-static-assets ./build ${BASE_PATH}/ --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --dryrun'

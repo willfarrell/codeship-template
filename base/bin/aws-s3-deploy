@@ -1,19 +1,61 @@
 #!/usr/bin/env sh
-set -e
-# Example Use:
-# $ AWS_REGION=ca-central-1 AWS_PROFILE=****** AWS_CLOUDFRONT_ID=******* ./bin/aws-s3-deploy s3-bucket-name ./build /
+set -ex
+
+# Defaults
+CACHE_CONTROL="--cache-control \"max-age=3600\""
+
+# Src: https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+  key="$1"
+
+  case ${key} in
+    --dryrun)
+    DRYRUN="${key}"
+    shift # past argument
+    ;;
+    --exclude)
+    EXCLUDE="${key} \"${2}\""
+    shift # past argument
+    shift # past value
+    ;;
+    --cache-control)
+    CACHE_CONTROL="${key} \"${2}\""
+    shift # past argument
+    shift # past value
+    ;;
+    --distribution-id)
+    AWS_CLOUDFRONT_DISTRIBUTION_ID="${2}"
+    shift # past argument
+    shift # past value
+    ;;
+    --region)
+    AWS_REGION="${2}"
+    shift # past argument
+    shift # past value
+    ;;
+    --profile)
+    AWS_PROFILE="${2}"
+    shift # past argument
+    shift # past value
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+  esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+
+#AWS_REGION=${AWS_REGION:-${AWS_DEFAULT_REGION}}
+AWS_PROFILE=${AWS_PROFILE:-${AWS_DEFAULT_PROFILE}}
 
 # Ensure required vars a set
-if [ -z "${AWS_DEFAULT_PROFILE}" ]; then
-    echo "AWS credentials are not set. ex 'AWS_DEFAULT_PROFILE=default aws-s3-deploy \${source_dir} \${bucket_name}'"
-    exit 1;
-fi
 if [ -z "${1}" ]; then
   echo "Destination bucket name required. 'aws-s3-deploy \${source_dir} \${bucket_name}'";
   exit 1;
 fi
 
-AWS_REGION=${AWS_REGION:-${AWS_DEFAULT_REGION}}
 
 BUCKET_NAME=$1
 SOURCE_DIR=${2:-./}
@@ -44,9 +86,9 @@ sync() {
     echo "sync ${1} ${2}"
     aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
         --no-guess-mime-type --content-type "${2}" --metadata-directive "REPLACE" \
-        --exclude "*" --include "${1}" \
-        --cache-control "max-age=3600" \
-        --profile ${AWS_DEFAULT_PROFILE}
+        --include "${1}" \
+        ${CACHE_CONTROL} ${DRYRUN} ${EXCLUDE} \
+        --profile ${AWS_PROFILE}
 }
 
 # /etc/mime.types
@@ -58,6 +100,18 @@ sync "*.html"        "text/html; charset=utf-8"
 
 # Upload remaining and remove unused
 aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
-    --cache-control "max-age=3600" \
     --delete \
-    --profile ${AWS_DEFAULT_PROFILE}
+    ${CACHE_CONTROL} ${DRYRUN} ${EXCLUDE} \
+    --profile ${AWS_PROFILE}
+
+if [ ! -z "${AWS_CLOUDFRONT_DISTRIBUTION_ID}" ]; then
+  PATHS_FILES=$(ls -p ${SOURCE_DIR} | grep -v / | awk '$0="'${BUCKET_PATH}'"$0')
+  PATHS_DIRS=$(ls -p ${SOURCE_DIR} | grep / | awk '$0="'${BUCKET_PATH}'"$0"*"')
+  PATHS="${PATHS_FILES[@]} ${PATHS_DIRS[@]}"
+
+  if [ ! -z "${DRYRUN}" ]; then
+    echo "(dryrun) aws cloudfront create-invalidation --profile ${AWS_PROFILE} --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths $(echo $PATHS | xargs echo)"
+  else
+    echo ${PATHS} | xargs aws cloudfront create-invalidation --profile ${AWS_PROFILE} --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths
+  fi
+fi
