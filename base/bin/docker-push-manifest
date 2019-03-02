@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+set -e
+
+OS=linux
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+  case ${1} in
+    --dryrun)  # Disable docker push
+    DRYRUN=TRUE
+    shift # past argument
+    ;;
+    --os)
+    OS="${2}"
+    shift
+    shift
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+  esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+
+IMAGE_NAME=$1
+
+if [ -z "${IMAGE_NAME}" ]; then echo "Image name required. ie willfarrell/codeship-docker"; exit 1; fi
+
+# Mappings - https://golang.org/doc/install/source#environment
+declare -A OS_MAP
+OS_MAP[android_arm]=TRUE
+OS_MAP[darwin_386]=TRUE
+OS_MAP[darwin_amd64]=TRUE
+OS_MAP[darwin_arm]=TRUE
+OS_MAP[darwin_arm64]=TRUE
+OS_MAP[dragonfly_amd64]=TRUE
+OS_MAP[freebsd_386]=TRUE
+OS_MAP[freebsd_amd64]=TRUE
+OS_MAP[freebsd_arm]=TRUE
+OS_MAP[linux_386]=TRUE
+OS_MAP[linux_amd64]=TRUE
+OS_MAP[linux_arm]=TRUE
+OS_MAP[linux_arm64]=TRUE
+OS_MAP[linux_ppc64]=TRUE
+OS_MAP[linux_ppc64le]=TRUE
+OS_MAP[linux_mips]=TRUE
+OS_MAP[linux_mipsle]=TRUE
+OS_MAP[linux_mips64]=TRUE
+OS_MAP[linux_mips64le]=TRUE
+OS_MAP[linux_s390x]=TRUE
+OS_MAP[netbsd_386]=TRUE
+OS_MAP[netbsd_amd64]=TRUE
+OS_MAP[netbsd_arm]=TRUE
+OS_MAP[openbsd_386]=TRUE
+OS_MAP[openbsd_amd64]=TRUE
+OS_MAP[openbsd_arm]=TRUE
+OS_MAP[plan9_386]=TRUE
+OS_MAP[plan9_amd64]=TRUE
+OS_MAP[solaris_amd64]=TRUE
+OS_MAP[windows_386]=TRUE
+OS_MAP[windows_amd64]=TRUE
+
+declare -A ARCH_MAP
+ARCH_MAP[386]=386
+ARCH_MAP[i386]=386
+ARCH_MAP[x86]=386
+ARCH_MAP[x86_32]=386
+ARCH_MAP[amd64]=amd64
+ARCH_MAP[x86_64]=amd64
+ARCH_MAP[arm]=arm
+ARCH_MAP[arm32v6]=arm
+ARCH_MAP[arm64]=arm64
+ARCH_MAP[arm64v7]=arm64
+ARCH_MAP[arm64v8]=arm64
+ARCH_MAP[ppc64]=ppc64
+ARCH_MAP[ppc64le]=ppc64le
+ARCH_MAP[mips]=mips
+ARCH_MAP[mipsle]=mipsle
+ARCH_MAP[mips64]=mips64
+ARCH_MAP[mips64le]=mips64le
+ARCH_MAP[s390x]=s390x
+
+declare -A VARIANT_MAP
+VARIANT_MAP[arm]=v6
+VARIANT_MAP[arm32v6]=v6
+VARIANT_MAP[arm64v7]=v7
+VARIANT_MAP[arm64]=v8
+VARIANT_MAP[arm64v8]=v8
+
+function manifest {
+  local IMAGE="${1}"
+  local TAG="${2}"
+  local IMAGE_TAG=""
+
+  if [ "${TAG}" == "latest" ]; then
+    IMAGE_TAG="${IMAGE}:"
+  else
+    IMAGE_TAG="${IMAGE}:${TAG}-"
+  fi
+
+  for arch_variant in "${ARCH_VARIANT[@]}"; do MANIFESTS="${MANIFESTS} ${IMAGE_TAG}${arch_variant}"; done
+
+  if [ "${DRYRUN}" != "TRUE" ]; then
+    docker manifest create ${IMAGE}:${TAG} ${MANIFESTS};
+  fi
+
+  local os="${OS}"
+  local arch=""
+  local variant=""
+
+  # Get image tags with suffix
+  ARCH_VARIANT=()
+  TAGS=($(docker images | grep ${IMAGE} | grep -v '<none>' | grep ${TAG} | awk '{print $2}'))
+  for tag in "${TAGS[@]}"; do
+    if [ "${tag}" != "" ] && [ "${tag}" != "${TAG}" ]; then
+      ARCH_VARIANT+=(${tag#"${TAG}-"})
+    fi
+  done
+
+  # check suffixes against mappings, annotate if found
+  for arch_variant in "${ARCH_VARIANT[@]}"; do
+    arch="${ARCH_MAP[${arch_variant}]}"
+    variant="${VARIANT_MAP[${arch_variant}]}"
+
+    if [ ! -z "${arch}" ] && [ "${OS_MAP[${os}_${arch}]}" == "TRUE" ]; then
+      if [ ! -z "${variant}" ]; then variant="--variant ${variant}"; fi
+      if [ "${DRYRUN}" == "TRUE" ]; then
+        echo "docker manifest annotate --os ${os} --arch ${arch} ${variant} ${IMAGE}:${TAG} ${IMAGE_TAG}${arch_variant}"
+      else
+        docker manifest annotate --os ${os} --arch ${arch} ${variant} ${IMAGE}:${TAG} ${IMAGE_TAG}${arch_variant};
+      fi
+    else
+      echo "WARN: Skipping ${os}_${arch}${variant} for ${IMAGE}:${TAG}"
+    fi
+  done
+
+  if [ "${DRYRUN}" == "TRUE" ]; then
+    echo "docker manifest push ${IMAGE}:${TAG}"
+  else
+    docker manifest push ${IMAGE}:${TAG}
+
+    # Print result
+    docker manifest inspect ${IMAGE}:${TAG}
+    # docker run mplatform/mquery ${IMAGE}:${TAG}
+  fi
+}
+
+
+## :commit
+manifest ${IMAGE_NAME} ${GIT_COMMIT_ID}
+
+## :latest
+if [ "${ENVIRONMENT}" == "production" ]; then
+  manifest ${IMAGE_NAME} latest
+fi
+
+## :v0.0.0-rc.1 -> 0, 0.0, 0.0.0, 0.0.0-rc.1
+function semverParse {
+	set $(echo ${1//v/} | tr ".-" " ")
+	echo $1
+	echo $2
+	echo $3
+	shift
+	shift
+	shift
+	echo ${@} | tr " " "."
+}
+if [ "${GIT_COMMIT_TAG}" != "" ] && [[ ${GIT_COMMIT_TAG} == v* ]]; then
+  TAGS=($(semverParse ${GIT_COMMIT_TAG}))
+  if [[ ${#TAGS[@]} -gt 3 ]]; then
+    TAG="${TAGS[0]}.${TAGS[1]}.${TAGS[2]}-${TAGS[3]}"
+    manifest ${IMAGE_NAME} ${TAG}
+  fi
+  TAG="${TAGS[0]}.${TAGS[1]}.${TAGS[2]}"
+  manifest ${IMAGE_NAME} ${TAG}
+  TAG="${TAGS[0]}.${TAGS[1]}"
+  manifest ${IMAGE_NAME} ${TAG}
+  TAG="${TAGS[0]}"
+  manifest ${IMAGE_NAME} ${TAG}
+elif [ "${GIT_COMMIT_TAG}" != "" ]; then
+  # Apply tag as is
+  manifest ${IMAGE_NAME} ${GIT_COMMIT_TAG}
+fi

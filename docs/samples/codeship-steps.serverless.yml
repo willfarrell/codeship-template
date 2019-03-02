@@ -51,8 +51,5 @@
   type: serial
   service: node
   steps:
-    - name: Exit if not a deployment branch
-      command: sh -c 'if [ "${ENVIRONMENT}" == "" ]; then exit 1; fi'
-
-    - name: Deploy Static Assets
+    - tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: sh -c 'serverless deploy --SLS_DEBUG=* --verbose --force --stage="api" --profile="${AWS_DEFAULT_PROFILE}"'

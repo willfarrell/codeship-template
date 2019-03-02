@@ -7,6 +7,12 @@
 
 set -e
 
+# Allow to enable `manifest` command
+#echo '{ "debug":true, "experimental": true }' > ~/.docker/config.json
+# v18.x
+echo '{ "debug":true, "experimental": "enabled" }' > ~/.docker/config.json
+docker version -f '{{.Server.Experimental}}' || exit 1
+
 if [ ! -z "${DOCKER_USERNAME}" ] && [ ! -z "${DOCKER_PASSWORD}" ]; then
   #DOCKER_REGISTRY=${DOCKER_REGISTRY:-'index.docker.io'}
   echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin

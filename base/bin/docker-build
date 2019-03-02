@@ -28,9 +28,7 @@ DOCKERFILE_PATH=${2:-'./'}
 if [ -z "${IMAGE_NAME}" ]; then echo "Image name required. ie willfarrell/codeship-docker"; exit 1; fi
 
 # Pull if exists
-set +e
-docker pull ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX}
-set -e
+docker pull ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} || :
 
 # Build
 ## :commit

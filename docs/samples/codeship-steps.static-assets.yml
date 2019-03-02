@@ -58,8 +58,5 @@
   type: serial
   service:  aws
   steps:
-    - name: Exit if not a deployment branch
-      command: sh -c 'if [ "${ENVIRONMENT}" == "" ]; then exit 1; fi'
-
-    - name: Deploy Static Assets
+    - tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: sh -c 'aws-s3-deploy app-${ENVIRONMENT}-static-assets ./build ${BASE_PATH}/ --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --dryrun'

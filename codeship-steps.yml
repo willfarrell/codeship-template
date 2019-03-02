@@ -49,18 +49,26 @@
   service: docker
   steps:
     - name: jet
+      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-jet
     - name: base
+      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-base
     - name: android
+      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-android
     - name: aws
+      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-aws
     - name: docker
+      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-docker
     - name: node
+      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-node
     - name: serverless
+      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-serverless
     - name: terraform
+      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-terraform

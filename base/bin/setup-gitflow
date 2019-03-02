@@ -14,9 +14,11 @@ gitflowEnv () {
   fi
 }
 
+# codeship default ENV https://documentation.codeship.com/pro/builds-and-configuration/environment-variables/#default-environment-variables
+
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "${GIT_BRANCH}" == "HEAD" ] && [ ! -z "${CI_BRANCH}" ]; then GIT_BRANCH=${CI_BRANCH}; fi
-GIT_COMMIT_ID=$(git rev-parse --short HEAD)
+GIT_COMMIT_ID=$(git rev-parse --short HEAD || ${CI_COMMIT_ID})
 GIT_COMMIT_HASH=$(git rev-parse HEAD)
 GIT_COMMIT_TAG=$(git tag -l --points-at HEAD)
 # if no past tags will throw exit

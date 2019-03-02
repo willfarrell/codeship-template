@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-
-#function finish {
-  #docker logout
-#}
-#trap finish EXIT
-
 set -e
 
 POSITIONAL=()
@@ -27,13 +21,13 @@ IMAGE_NAME=$1
 if [ -z "${IMAGE_NAME}" ]; then echo "Image name required. ie willfarrell/codeship-docker"; exit 1; fi
 
 # Push
+IMAGES=($(docker images | grep ${IMAGE_NAME} | grep -v '<none>' | awk '{print $1 ":" $2}'))
 if [ "${DRYRUN}" == "TRUE" ]; then
-  echo "(dryrun) docker push:"
-  docker images | grep ${IMAGE_NAME} | grep -v '<none>' | awk '{print $1 ":" $2}'
+  echo "(dryrun) docker push: ${IMAGES[@]}"
 else
-  while read image; do
+  for image in "${IMAGES[@]}"; do
     if [ "${image}" != "" ]; then
       docker push ${image}
     fi
-  done <<<$(docker images | grep ${IMAGE_NAME} | grep -v '<none>' | awk '{print $1 ":" $2}')
+  done
 fi
