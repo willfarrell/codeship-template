@@ -32,6 +32,8 @@ if [ "${DRYRUN}" == "TRUE" ]; then
   docker images | grep ${IMAGE_NAME} | grep -v '<none>' | awk '{print $1 ":" $2}'
 else
   while read image; do
-    docker push $image
+    if [ "${image}" != "" ]; then
+      docker push ${image}
+    fi
   done <<<$(docker images | grep ${IMAGE_NAME} | grep -v '<none>' | awk '{print $1 ":" $2}')
 fi
