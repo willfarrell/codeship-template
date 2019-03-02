@@ -3,7 +3,7 @@ base:
     image: willfarrell/codeship-base
     context: base
     dockerfile_path: Dockerfile
-  cached: false
+  cached: true
   encrypted_env_file: env.encrypted
   volumes:
     - ./:/data
@@ -13,7 +13,7 @@ docker:
     image: willfarrell/codeship-docker
     context: docker
     dockerfile_path: Dockerfile
-  cached: false
+  cached: true
   encrypted_env_file: env.encrypted
   env_file: .tmp/env
   volumes:

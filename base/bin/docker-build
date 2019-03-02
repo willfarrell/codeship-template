@@ -54,16 +54,15 @@ fi
 function semverParse {
 	set $(echo ${1//v/} | tr ".-" " ")
 	echo $1
-	shift
 	echo $2
-	shift
 	echo $3
+	shift
+	shift
 	shift
 	echo ${@} | tr " " "."
 }
 if [ "${GIT_COMMIT_TAG}" != "" ] && [[ ${GIT_COMMIT_TAG} == v* ]]; then
   TAGS=($(semverParse ${GIT_COMMIT_TAG}))
-
   if [[ ${#TAGS[@]} -gt 3 ]]; then
     TAG="${TAGS[0]}.${TAGS[1]}.${TAGS[2]}-${TAGS[3]}"
     docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${IMAGE_NAME}:${TAG}${TAG_SUFFIX}

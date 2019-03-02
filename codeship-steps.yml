@@ -23,18 +23,34 @@
     - command: docker-env-check
     - command: docker-auth
 
-- name: Build CI/CD Docker Images
+- name: Build Docker Images
   type: parallel
   service: docker
   steps:
-    - name: base
-      command: docker-build willfarrell/codeship-base ./base/
-    - name: aws
-      command: docker-build willfarrell/codeship-aws ./aws/
+    - name: jet
+      command: docker-build willfarrell/codeship-jet ./jet/
+#    - name: base
+#      command: docker-build willfarrell/codeship-base ./base/
+#    - name: aws
+#      command: docker-build willfarrell/codeship-aws ./aws/
 #    - name: docker
 #      command: docker-build willfarrell/codeship-docker ./docker/
-    - name: node
-      command: docker-build willfarrell/codeship-node ./node/
+#    - name: node
+#      command: docker-build willfarrell/codeship-node ./node/
 #    - name: terraform
 #      command: docker-build willfarrell/codeship-terraform ./terraform/
 
+- name: Push Docker Images
+  type: parallel
+  service: docker
+  steps:
+    - name: jet
+      command: docker-push willfarrell/codeship-jet --dryrun
+    - name: base
+      command: docker-push willfarrell/codeship-base --dryrun
+    - name: aws
+      command: docker-push willfarrell/codeship-aws --dryrun
+    - name: docker
+      command: docker-push willfarrell/codeship-docker --dryrun
+    - name: node
+      command: docker-push willfarrell/codeship-node --dryrun
