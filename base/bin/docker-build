@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-
-#function finish {
-  #docker logout
-#}
-#trap finish EXIT
-
 set -e
 
 POSITIONAL=()
@@ -12,6 +6,8 @@ while [[ $# -gt 0 ]]; do
   case ${1} in
     --build-arg)
     BUILD_ARG="${1} ${2}"
+    shift # past argument
+    shift # past argument
     ;;
     --suffix)  # Disable docker push
     TAG_SUFFIX="${2}"
@@ -31,13 +27,9 @@ DOCKERFILE_PATH=${2:-'./'}
 
 if [ -z "${IMAGE_NAME}" ]; then echo "Image name required. ie willfarrell/codeship-docker"; exit 1; fi
 
-echo "Building ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} from ${SOURCE_DIR}"
-
-
 # Pull if exists
-TAG=${GIT_COMMIT_ID}
 set +e
-docker pull ${IMAGE_NAME}:${TAG}${TAG_SUFFIX}
+docker pull ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX}
 set -e
 
 # Build
@@ -45,8 +37,12 @@ set -e
 docker build ${BUILD_ARG} --tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${DOCKERFILE_PATH}
 
 ## :latest
-if [ "${ENVIRONMENT}" == "production" ] && [ "${TAG_SUFFIX}" == "" ]; then
-  TAG=latest
+if [ "${ENVIRONMENT}" == "production" ]; then
+  if [ "${TAG_SUFFIX}" != "" ]; then
+    TAG="${TAG_SUFFIX}"
+  else
+    TAG=latest
+  fi
   docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID} ${IMAGE_NAME}:${TAG}
 fi
 

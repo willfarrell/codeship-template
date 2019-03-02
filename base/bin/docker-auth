@@ -1,5 +1,10 @@
 #!/usr/bin/env sh
 
+#function finish {
+#  docker logout
+#}
+#trap finish EXIT
+
 set -e
 
 if [ ! -z "${DOCKER_USERNAME}" ] && [ ! -z "${DOCKER_PASSWORD}" ]; then
