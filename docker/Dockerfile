@@ -1,6 +1,6 @@
 FROM willfarrell/codeship-base AS base
 
-FROM docker:18
+FROM docker:18-dind
 
 ARG workdir=/data
 ARG bin=/usr/local/bin/codeship
