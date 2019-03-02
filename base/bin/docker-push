@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+#function finish {
+  #docker logout
+#}
+#trap finish EXIT
+
+set -e
+
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+  case ${1} in
+    --dryrun)  # Disable docker push
+    DRYRUN=TRUE
+    shift # past argument
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+  esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+
+IMAGE_NAME=$1
+
+if [ -z "${IMAGE_NAME}" ]; then echo "Image name required. ie willfarrell/codeship-docker"; exit 1; fi
+
+# Push
+if [ "${DRYRUN}" == "TRUE" ]; then
+  echo "(dryrun) docker push:"
+  docker images | grep ${IMAGE_NAME} | grep -v '<none>' | awk '{print $1 ":" $2}'
+else
+  docker images | grep ${IMAGE_NAME} | grep -v '<none>' | awk '{print $1 ":" $2}' | xargs docker push
+fi

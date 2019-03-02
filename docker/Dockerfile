@@ -7,7 +7,7 @@ ARG bin=/usr/local/bin/codeship
 
 ENV PATH="${bin}:${PATH}:${bin}"
 
-RUN apk add --no-cache openssl git openssh-client
+RUN apk add --no-cache openssl bash git openssh-client
 
 WORKDIR ${workdir}
 

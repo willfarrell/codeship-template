@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 #function finish {
   #docker logout
@@ -7,59 +7,74 @@
 
 set -e
 
-# Inputs
-
-if [ -z "${1}" ]; then echo "Image name required. ie willfarrell/codeship-docker"; exit 1; fi
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+  case ${1} in
+    --build-arg)
+    BUILD_ARG="${1} ${2}"
+    ;;
+    --suffix)  # Disable docker push
+    TAG_SUFFIX="${2}"
+    shift # past argument
+    shift # past value
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+  esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
 
 IMAGE_NAME=$1
 DOCKERFILE_PATH=${2:-'./'}
-TAG_SUFFIX=${3:-''}
-# TODO add flag to toggle push or not
+
+if [ -z "${IMAGE_NAME}" ]; then echo "Image name required. ie willfarrell/codeship-docker"; exit 1; fi
 
 echo "Building ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} from ${SOURCE_DIR}"
 
-#if [ ! -z "${DOCKER_USERNAME}" ] && [ ! -z "${DOCKER_PASSWORD}" ]; then
-  #DOCKER_REGISTRY=${DOCKER_REGISTRY:-'index.docker.io'}
-  #echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
-  # WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
-  # https://docs.docker.com/engine/reference/commandline/login/#credentials-store
-#fi
 
 # Pull if exists
+TAG=${GIT_COMMIT_ID}
 set +e
-docker pull ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX}
+docker pull ${IMAGE_NAME}:${TAG}${TAG_SUFFIX}
 set -e
 
-# Build and Push
-docker build --tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${DOCKERFILE_PATH}
-
+# Build
 ## :commit
-docker push ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX}
+docker build ${BUILD_ARG} --tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${DOCKERFILE_PATH}
 
 ## :latest
 if [ "${ENVIRONMENT}" == "production" ] && [ "${TAG_SUFFIX}" == "" ]; then
-  docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID} ${IMAGE_NAME}:latest
-  docker push ${IMAGE_NAME}:latest
+  TAG=latest
+  docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID} ${IMAGE_NAME}:${TAG}
 fi
 
-## :environment
-if [ "${ENVIRONMENT}" != "" ]; then
-  docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${IMAGE_NAME}:${ENVIRONMENT}${TAG_SUFFIX}
-  docker push ${IMAGE_NAME}:${ENVIRONMENT}${TAG_SUFFIX}
-fi
+## :v0.0.0-rc.1 -> 0, 0.0, 0.0.0, 0.0.0-rc.1
+function semverParse {
+	set $(echo ${1//v/} | tr ".-" " ")
+	echo $1
+	shift
+	echo $2
+	shift
+	echo $3
+	shift
+	echo ${@} | tr " " "."
+}
+if [ "${GIT_COMMIT_TAG}" != "" ] && [[ ${GIT_COMMIT_TAG} == v* ]]; then
+  TAGS=($(semverParse ${GIT_COMMIT_TAG}))
 
-## :v0.0.0
-if [ "${GIT_COMMIT_TAG}" != "" ]; then
-  # TODO tag 0.0, 0
-  # TODO strip v
-  docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${IMAGE_NAME}:${GIT_COMMIT_TAG}${TAG_SUFFIX}
-  docker push ${IMAGE_NAME}:${GIT_COMMIT_TAG}${TAG_SUFFIX}
+  if [[ ${#TAGS[@]} -gt 3 ]]; then
+    TAG="${TAGS[0]}.${TAGS[1]}.${TAGS[2]}-${TAGS[3]}"
+    docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${IMAGE_NAME}:${TAG}${TAG_SUFFIX}
+  fi
+  TAG="${TAGS[0]}.${TAGS[1]}.${TAGS[2]}"
+  docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${IMAGE_NAME}:${TAG}${TAG_SUFFIX}
+  TAG="${TAGS[0]}.${TAGS[1]}"
+  docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${IMAGE_NAME}:${TAG}${TAG_SUFFIX}
+  TAG="${TAGS[0]}"
+  docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${IMAGE_NAME}:${TAG}${TAG_SUFFIX}
 elif [ "${GIT_COMMIT_TAG}" != "" ]; then
   # Apply tag as is
   docker tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${IMAGE_NAME}:${GIT_COMMIT_TAG}${TAG_SUFFIX}
-  docker push ${IMAGE_NAME}:${GIT_COMMIT_TAG}${TAG_SUFFIX}
 fi
-
-# TODO scan image for sec issue
-
-#finish

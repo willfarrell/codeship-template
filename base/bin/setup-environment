@@ -30,13 +30,15 @@ while IFS='=' read -r name value; do
   key=$(makeKey ${name} ${value})
 
   if [ "${key}" != "" ]; then
-    if [ "${value//[0-9a-zA-Z._]/}" == "" ]; then
+    # What should be allowed: url, [a-z] strings
+    echo "${key}=${value}" >> .tmp/env
+    #if [ "${value//[0-9a-zA-Z-.:\/_]/}" == "" ]; then
       # Only store clean values without quotes
-      echo "${key}=${value}" >> .tmp/env
-    else
+    #  echo "${key}=${value}" >> .tmp/env
+    #else
       # Wrap dirty values in quotes
-      echo "${key}=\"${value}\"" >> .tmp/env
-    fi
+    #  echo "${key}=\"${value}\"" >> .tmp/env
+    #fi
   fi
 done <<EOF
 $(env)

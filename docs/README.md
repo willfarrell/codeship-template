@@ -118,3 +118,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Phase III
   - [ ] terraform module aws-code-pipeline
 - [ ] ensure all images have a USER line
+- [ ] connect repo to docker hub, but disable auto build - to show dockerfile

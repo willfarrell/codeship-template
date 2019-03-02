@@ -14,6 +14,7 @@
   steps:
     - command: npm-version
     - command: npm-env-check
+    - command: dotenv-make
     - name: Install Dependencies
       command: npm ci
 
@@ -54,4 +55,4 @@
       command: sh -c 'if [ "${ENVIRONMENT}" == "" ]; then exit 1; fi'
 
     - name: Deploy Static Assets
-      command: sh -c 'SLS_DEBUG=* serverless deploy --verbose --force --stage="api" --profile="${AWS_DEFAULT_PROFILE}"'
+      command: sh -c 'serverless deploy --SLS_DEBUG=* --verbose --force --stage="api" --profile="${AWS_DEFAULT_PROFILE}"'
