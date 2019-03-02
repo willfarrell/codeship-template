@@ -31,12 +31,16 @@
       command: docker-build willfarrell/codeship-jet ./jet/
     - name: base
       command: docker-build willfarrell/codeship-base ./base/
+    #- name: android
+    #  command: docker-build willfarrell/codeship-android ./android/
     - name: aws
       command: docker-build willfarrell/codeship-aws ./aws/
     - name: docker
       command: docker-build willfarrell/codeship-docker ./docker/
     - name: node
       command: docker-build willfarrell/codeship-node ./node/
+    - name: serverless
+      command: docker-build willfarrell/codeship-serverless ./serverless/
 #    - name: terraform
 #      command: docker-build willfarrell/codeship-terraform ./terraform/
 
@@ -48,9 +52,15 @@
       command: docker-push willfarrell/codeship-jet
     - name: base
       command: docker-push willfarrell/codeship-base
+    - name: android
+      command: docker-push willfarrell/codeship-android
     - name: aws
       command: docker-push willfarrell/codeship-aws
     - name: docker
       command: docker-push willfarrell/codeship-docker
     - name: node
       command: docker-push willfarrell/codeship-node
+    - name: serverless
+      command: docker-push willfarrell/codeship-serverless
+    - name: terraform
+      command: docker-push willfarrell/codeship-terraform
