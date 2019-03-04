@@ -1,17 +1,7 @@
 #!/usr/bin/env sh
-
-#function finish {
-#  docker logout
-#}
-#trap finish EXIT
-
 set -e
 
-# Allow to enable `manifest` command
-#echo '{ "debug":true, "experimental": true }' > ~/.docker/config.json
-# v18.x
 echo '{ "debug":true, "experimental": "enabled" }' > ~/.docker/config.json
-docker version -f '{{.Server.Experimental}}' || exit 1
 
 if [ ! -z "${DOCKER_USERNAME}" ] && [ ! -z "${DOCKER_PASSWORD}" ]; then
   #DOCKER_REGISTRY=${DOCKER_REGISTRY:-'index.docker.io'}
@@ -19,3 +9,5 @@ if [ ! -z "${DOCKER_USERNAME}" ] && [ ! -z "${DOCKER_PASSWORD}" ]; then
   # WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
   # https://docs.docker.com/engine/reference/commandline/login/#credentials-store
 fi
+
+cat ~/.docker/config.json

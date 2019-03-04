@@ -14,6 +14,11 @@ while [[ $# -gt 0 ]]; do
     shift # past argument
     shift # past value
     ;;
+    --multi-arch)
+    MULTIARCH=TRUE
+    shift # past argument
+    shift # past argument
+    ;;
     *)    # unknown option
     POSITIONAL+=("$1") # save it in an array for later
     shift # past argument
@@ -26,6 +31,13 @@ IMAGE_NAME=$1
 DOCKERFILE_PATH=${2:-'./'}
 
 if [ -z "${IMAGE_NAME}" ]; then echo "Image name required. ie willfarrell/codeship-docker"; exit 1; fi
+
+
+if [ "${MULTIARCH}" == "TRUE" ]; then
+  docker pull multiarch/qemu-user-static:register
+  docker run --rm --privileged multiarch/qemu-user-static:register --reset
+fi
+
 
 # Pull if exists
 docker pull ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} || :

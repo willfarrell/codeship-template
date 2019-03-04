@@ -9,6 +9,7 @@
   service: docker
   steps:
     - command: docker-env-check
+    - command: docker-multiarch
     - command: docker-auth
 
 - name: Build CI/CD Docker Images
