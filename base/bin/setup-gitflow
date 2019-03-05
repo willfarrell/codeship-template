@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 gitflowEnv () {
   if [ "${GIT_BRANCH}" == "master" ] && [ "${GIT_LATEST_TAG}" == "${GIT_COMMIT_TAG}" ]; then
