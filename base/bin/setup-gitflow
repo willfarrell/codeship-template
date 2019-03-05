@@ -3,9 +3,9 @@
 gitflowEnv () {
   if [ "${GIT_BRANCH}" == "master" ] && [ "${GIT_LATEST_TAG}" == "${GIT_COMMIT_TAG}" ]; then
     echo "production"
-  elif [[ "${GIT_BRANCH}" =~ ^release/ ]] && [ "${GIT_LATEST_TAG}" == "${GIT_COMMIT_TAG}" ]; then
+  elif [[ "${GIT_BRANCH}" == release/* ]] && [ "${GIT_LATEST_TAG}" == "${GIT_COMMIT_TAG}" ]; then
     echo "staging"
-  elif [[ "${GIT_BRANCH}" =~ ^release/ ]]; then
+  elif [[ "${GIT_BRANCH}" == release/* ]]; then
     echo "testing"
   elif [ "${GIT_BRANCH}" == "develop" ]; then
     echo "development"
