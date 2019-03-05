@@ -28,7 +28,7 @@ set -e
 
 ENVIRONMENT=$(gitflowEnv)
 
-echo "Commit: '${GIT_COMMIT_ID}'; Branch: '${GIT_BRANCH}'; Tag: '${GIT_LATEST_TAG}' vs. '${GIT_COMMIT_TAG}' => ${ENVIRONMENT}"
+echo "Commit: '${GIT_COMMIT_ID}'; Branch: '${GIT_BRANCH}'; Tag: '${GIT_LATEST_TAG}' vs. '${GIT_COMMIT_TAG}'; Environment: ${ENVIRONMENT}"
 
 cat << EOF >> .tmp/env
 # setup-gitflow
