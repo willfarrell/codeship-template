@@ -13,12 +13,19 @@ aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
 region = ${AWS_DEFAULT_REGION}
 EOF
 
-touch ${HOME}/.aws/config
+echo "" > ${HOME}/.aws/config
 if [ ! -z "${AWS_ACCOUNT_ID}" ]; then
-  # Could also be saved in ~/.aws/config
   cat << EOF >> ${HOME}/.aws/credentials
 
 [${AWS_DEFAULT_PROFILE}-${ENVIRONMENT}]
+source_profile = ${AWS_DEFAULT_PROFILE}
+role_arn = arn:aws:iam::${AWS_ACCOUNT_ID}:role/${AWS_ASSUME_ROLE:-admin}
+session_name = codeship-${AWS_DEFAULT_PROFILE}-${ENVIRONMENT}
+EOF
+
+  cat << EOF >> ${HOME}/.aws/config
+
+[profile ${AWS_DEFAULT_PROFILE}-${ENVIRONMENT}]
 source_profile = ${AWS_DEFAULT_PROFILE}
 role_arn = arn:aws:iam::${AWS_ACCOUNT_ID}:role/${AWS_ASSUME_ROLE:-admin}
 session_name = codeship-${AWS_DEFAULT_PROFILE}-${ENVIRONMENT}

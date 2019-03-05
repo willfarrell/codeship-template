@@ -26,9 +26,9 @@ GIT_LATEST_TAG=$(git describe --abbrev=0 --tags 2> /dev/null) # Broken on codesh
 
 set -e
 
-echo "Commit: '${GIT_COMMIT_ID}'; Branch: '${GIT_BRANCH}'; Tag: '${GIT_LATEST_TAG}' vs. '${GIT_COMMIT_TAG}'"
-
 ENVIRONMENT=$(gitflowEnv)
+
+echo "Commit: '${GIT_COMMIT_ID}'; Branch: '${GIT_BRANCH}'; Tag: '${GIT_LATEST_TAG}' vs. '${GIT_COMMIT_TAG}' => ${ENVIRONMENT}"
 
 cat << EOF >> .tmp/env
 # setup-gitflow
