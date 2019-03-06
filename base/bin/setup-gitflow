@@ -22,13 +22,13 @@ GIT_COMMIT_ID=$(git rev-parse --short HEAD || ${CI_COMMIT_ID})
 GIT_COMMIT_HASH=$(git rev-parse HEAD)
 GIT_COMMIT_TAG=$(git tag -l --points-at HEAD)
 # if no past tags will throw exit
-GIT_LATEST_TAG=$(git describe --abbrev=0 --tags 2> /dev/null) # Broken on codeship :( # TODO git pull missing data
+#GIT_LATEST_TAG=$(git describe --abbrev=0 --tags 2> /dev/null) # Broken on codeship :( # TODO git pull missing data
 
 set -e
 
 ENVIRONMENT=$(gitflowEnv)
 
-echo "Commit: '${GIT_COMMIT_ID}'; Branch: '${GIT_BRANCH}'; Tag: '${GIT_LATEST_TAG}' vs. '${GIT_COMMIT_TAG}'; Environment: ${ENVIRONMENT}"
+echo "Commit: '${GIT_COMMIT_ID}'; Branch: '${GIT_BRANCH}'; Tag: '${GIT_COMMIT_TAG}'; Environment: ${ENVIRONMENT}"
 
 cat << EOF >> .tmp/env
 # setup-gitflow
