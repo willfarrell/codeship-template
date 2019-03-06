@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
 gitflowEnv () {
-  if [ "${GIT_BRANCH}" == "master" ] && [ ! -z "${GIT_COMMIT_TAG}" ]; then
+  # Not tag on master is not enforced
+  if [ "${GIT_BRANCH}" == "master" ]; then
     echo "production"
-  elif [[ "${GIT_BRANCH}" == release/* ]] && [ ! -z "${GIT_COMMIT_TAG}" ]; then
+  elif [[ "${GIT_COMMIT_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+.* ]]; then
     echo "staging"
   elif [[ "${GIT_BRANCH}" == release/* ]]; then
     echo "testing"
@@ -20,7 +21,7 @@ GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "${GIT_BRANCH}" == "HEAD" ] && [ ! -z "${CI_BRANCH}" ]; then GIT_BRANCH=${CI_BRANCH}; fi
 GIT_COMMIT_ID=$(git rev-parse --short HEAD || ${CI_COMMIT_ID})
 GIT_COMMIT_HASH=$(git rev-parse HEAD)
-GIT_COMMIT_TAG=$(git tag -l --points-at HEAD)
+GIT_COMMIT_TAG=$(git tag -l --points-at HEAD || ${CI_BRANCH})
 # if no past tags will throw exit
 #GIT_LATEST_TAG=$(git describe --abbrev=0 --tags 2> /dev/null) # Broken on codeship :( # TODO git pull missing data
 
