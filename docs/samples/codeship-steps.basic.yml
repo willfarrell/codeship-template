@@ -42,7 +42,7 @@
   service: aws
   steps:
     - name: Deploy Application
-      tag: tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
+      tag: ^(master|develop|release/.*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: sh -c 'echo true'
     - name: Clear Cache
     - name: Notifications

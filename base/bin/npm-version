@@ -16,6 +16,8 @@ if [ -e "${DIR}/package.json" ]; then
   fi
 fi
 
+# just in case this is called from inside docker
+if [ ! -e ".tmp" ]; then mkdir .tmp; fi
 
 cat << EOF >> .tmp/env
 APP_VERSION=${APP_VERSION}

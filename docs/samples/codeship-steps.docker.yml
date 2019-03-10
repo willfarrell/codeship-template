@@ -23,5 +23,5 @@
   type: parallel
   service: docker
   steps:
-    - tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
+    - tag: ^(master|develop|release/.*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/autoheal

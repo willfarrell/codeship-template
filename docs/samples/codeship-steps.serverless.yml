@@ -51,5 +51,5 @@
   type: serial
   service: node
   steps:
-    - tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
+    - tag: ^(master|develop|release/.*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: sh -c 'serverless deploy --SLS_DEBUG=* --verbose --force --stage="api" --profile="${AWS_DEFAULT_PROFILE}"'

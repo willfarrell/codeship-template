@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 gitflowEnv () {
-  # Not tag on master is not enforced
+  # There is no enforcement on tags on master due to codeship not passing branch & tag
   if [ "${GIT_BRANCH}" == "master" ]; then
     echo "production"
   elif [[ "${GIT_COMMIT_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+.* ]]; then
