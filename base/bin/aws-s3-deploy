@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 DEFAULT_CACHE_CONTROL='--cache-control "max-age=3600"'
 
@@ -46,7 +46,7 @@ BUCKET_PATH=${3:-/}
 AWS_REGION=${AWS_REGION:-${AWS_DEFAULT_REGION}}
 AWS_PROFILE=${AWS_PROFILE:-${AWS_DEFAULT_PROFILE}}
 
-CACHE_CONTROL=${CACHE_CONTROL:-${DEFAULT_CACHE_CONTROL}
+CACHE_CONTROL=${CACHE_CONTROL:-${DEFAULT_CACHE_CONTROL}}
 
 # Ensure required vars a set
 if [ -z "${BUCKET_NAME}" ]; then
@@ -78,7 +78,7 @@ echo "s3 sync ${SOURCE_DIR} => s3://${BUCKET_NAME}${BUCKET_PATH}"
 
 copy() {
     echo "copy ${1} ${2}"
-    aws s3 cp ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --recursive --sse AES256 \
+    aws s3 cp ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --recursive --sse \
         --no-guess-mime-type --content-type "${2}" --metadata-directive "REPLACE" \
         --exclude="*" --include "${1}" \
         ${CACHE_CONTROL} ${DRYRUN} \
@@ -87,7 +87,7 @@ copy() {
 
 sync() {
     echo "sync ${1} ${2}"
-    aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse AES256 \
+    aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
         --no-guess-mime-type --content-type "${2}" --metadata-directive "REPLACE" \
         --exclude="*" --include "${1}" \
         ${CACHE_CONTROL} ${DRYRUN} \
