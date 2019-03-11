@@ -78,7 +78,7 @@ echo "s3 sync ${SOURCE_DIR} => s3://${BUCKET_NAME}${BUCKET_PATH}"
 
 copy() {
     echo "copy ${1} ${2}"
-    aws s3 cp ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --recursive --sse \
+    aws s3 cp ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --recursive --sse AES256 \
         --no-guess-mime-type --content-type "${2}" --metadata-directive "REPLACE" \
         --exclude="*" --include "${1}" \
         ${CACHE_CONTROL} ${DRYRUN} \
@@ -87,7 +87,7 @@ copy() {
 
 sync() {
     echo "sync ${1} ${2}"
-    aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
+    aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse AES256 \
         --no-guess-mime-type --content-type "${2}" --metadata-directive "REPLACE" \
         --exclude="*" --include "${1}" \
         ${CACHE_CONTROL} ${DRYRUN} \
