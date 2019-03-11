@@ -95,11 +95,11 @@ sync() {
 }
 
 # /etc/mime.types
-copy "*.txt"         "text/plain; charset=utf-8"
-copy "*.webmanifest" "application/manifest+json; charset=utf-8"
-copy "*.js"          "text/javascript; charset=utf-8"
-copy "*.json"        "application/json; charset=utf-8"
-copy "*.html"        "text/html; charset=utf-8"
+sync "*.txt"         "text/plain; charset=utf-8"
+sync "*.webmanifest" "application/manifest+json; charset=utf-8"
+sync "*.js"          "text/javascript; charset=utf-8"
+sync "*.json"        "application/json; charset=utf-8"
+sync "*.html"        "text/html; charset=utf-8"
 
 # Upload remaining and remove unused
 echo "***** If you have nested folder not generated from this build, cancel now *****"
