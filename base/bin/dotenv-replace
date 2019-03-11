@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 set -e
 
 if [ ! -e ".env" ]; then echo ".env missing. Run 'setup-env' or 'dotenv-make' first"; exit 1; fi
@@ -13,11 +13,16 @@ fi
 
 while IFS='=' read -r name value; do
   #echo "\${$name} => $value"
+  # Skip blank lines and comments
+  if [ -z "${name}" ] || [[ ${name} =~ ^#.* ]]; then continue; fi
+
+  # Sanitize Value
+  value=$(echo ${value} | sed -E 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')
 
   # replace ${name} => ${value}
   # replace ${name:${default}} => ${value}
   # replace ${name|${default}} => ${value}
-  sed -i -E 's~\$\{'${name}'(|[\|:][^\}]{1,})\}~'${value}'~g' "${FILE}"
+  sed -i -E 's/\$\{'${name}'(|[\|:][^\}]{1,})\}/'${value}'/g' "${FILE}"
   #find ./ -type f  -name "${FILE}" -print0 | xargs -0 sed -i -r 's~\$\{'${name}' ?(|[\|:][^\}]{1,})}~'${value}'~g'
 
 done < "./.env"
@@ -25,7 +30,7 @@ done < "./.env"
 
 # replace ${name:default} => ${default}
 # replace ${name|default} => ${default}
-sed -i -r 's~\$\{'${name}'[\|:](.*)\}~$1~g' "${FILE}"
+sed -i -r 's~\$\{'${name}'[\|:](.*?)\}~$1~g' "${FILE}"
 
 # TODO extend to GlOB
 # https://github.com/willfarrell/docker-nginx/blob/master/etc/scripts/app_env

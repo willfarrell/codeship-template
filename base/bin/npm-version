@@ -23,4 +23,4 @@ APP_VERSION=${APP_VERSION}
 EOF
 fi
 
-
+echo ${APP_VERSION}
