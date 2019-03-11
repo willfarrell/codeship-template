@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 if [ ! -e ".env" ]; then echo ".env missing. Run 'setup-env' or 'dotenv-make' first"; exit 1; fi
 if [ -z "${1}" ]; then echo "filename of file you want to replace required. ie ./build/index.html"; exit 1; fi
@@ -17,7 +17,7 @@ while IFS='=' read -r name value; do
   if [ -z "${name}" ] || [[ ${name} =~ ^#.* ]]; then continue; fi
 
   # Sanitize Value
-  value=$(echo ${value} | sed -E 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')
+  value=$(echo ${value} | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')
 
   # replace ${name} => ${value}
   # replace ${name:${default}} => ${value}
