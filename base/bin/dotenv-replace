@@ -12,7 +12,7 @@ if [ ! -e "${FILE}" ]; then
 fi
 
 while IFS='=' read -r name value; do
-  #echo "\${$name} => $value"
+  echo "\${$name} => $value"
   # Skip blank lines and comments
   if [ -z "${name}" ] || [[ ${name} =~ ^#.* ]]; then continue; fi
 
@@ -22,7 +22,7 @@ while IFS='=' read -r name value; do
   # replace ${name} => ${value}
   # replace ${name:${default}} => ${value}
   # replace ${name|${default}} => ${value}
-  sed -i -E 's/\$\{'${name}'(|[\|:][^\}]{1,})\}/'${value}'/g' "${FILE}"
+  sed -i -E 's/\$\{'${name}'(|[\|:].*?)\}/'${value}'/g' "${FILE}"
   #find ./ -type f  -name "${FILE}" -print0 | xargs -0 sed -i -r 's~\$\{'${name}' ?(|[\|:][^\}]{1,})}~'${value}'~g'
 
 done < "./.env"
