@@ -1,6 +1,4 @@
-FROM willfarrell/codeship-base
-
-# Install aws cli and supporting cli
+FROM willfarrell/codeship-docker AS docker
 
 # https://pypi.org/project/awscli/#history
 ARG awscli=1.16.147
@@ -17,7 +15,8 @@ RUN apk update && \
     pip install --upgrade \
         awscli==${awscli} \
         python-magic && \
-    curl https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v${ecs-cli} > /usr/local/bin/ecs-cli && \
+    curl https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v${ecscli} > /usr/local/bin/ecs-cli && \
+    chmod +x /usr/local/bin/ecs-cli && \
+    curl https://raw.githubusercontent.com/silinternational/ecs-deploy/${ecsdeploy}/ecs-deploy > /usr/local/bin/ecs-deploy && \
+    chmod +x /usr/local/bin/ecs-deploy && \
     apk -v --purge del .build-deps
-
-# TODO verify ecs-cli signature

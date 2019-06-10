@@ -14,7 +14,8 @@ RUN apk add --no-cache bash openssl git openssh-client
 # https://pypi.org/project/awscli/
 ARG awscli=1.16.109
 
-RUN apk add --no-cache --virtual .deps python groff && \
+RUN apk update && \
+    apk add --no-cache --virtual .deps python groff && \
     apk add --no-cache --virtual .build-deps py-pip && \
     pip install --upgrade awscli==${awscli} && \
     apk -v --purge del .build-deps

@@ -16,12 +16,30 @@
   type: parallel
   service: docker
   steps:
-    - name: name
+    - name: name-docker-hub
       command: docker-build org/name ./
+    - name: name-other
+      command: bash -c 'docker-build ${DOCKER_REGISTRY}/name ./'
 
-- name: Push Docker Images
+- name: Push Docker Images (Docker)
   type: parallel
   service: docker
   steps:
     - tag: ^(master|develop|release/.*|v[0-9]+\.[0-9]+\.[0-9]+)
-      command: docker-push willfarrell/autoheal
+      command: docker-push org/name
+
+- name: Push Docker Images (AWS)
+  type: parallel
+  service: aws-docker
+  steps:
+    - command: aws-env-check
+    - command: aws-auth
+    - command: aws-docker-auth
+    - tag: ^(master|develop|release/.*|v[0-9]+\.[0-9]+\.[0-9]+)
+      command: bash -c 'docker-push ${DOCKER_REGISTRY}/name'
+
+- name: Deploy to ECS
+  type: serial
+  service: aws
+  steps:
+    - command: bash -c 'aws-ecs-deploy --verbose --region ${AWS_DEFAULT_REGION} --cluster onguard-alb-ecs --service-name onguard-api --image ${AWS_DOCKER_REGISTRY}/onguard-api:${GIT_COMMIT_ID} --enable-rollback --profile ${AWS_DEFAULT_PROFILE}'

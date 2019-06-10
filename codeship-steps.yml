@@ -41,6 +41,8 @@
       command: docker-build willfarrell/codeship-node ./node/
     - name: serverless
       command: docker-build willfarrell/codeship-serverless ./serverless/
+    - name: aws-docker
+      command: docker-build willfarrell/codeship-aws-docker ./aws-docker/
 #    - name: terraform
 #      command: docker-build willfarrell/codeship-terraform ./terraform/
 

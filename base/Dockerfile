@@ -5,7 +5,8 @@ ARG bin=/usr/local/bin/codeship
 
 ENV PATH="${PATH}:${bin}"
 
-RUN apk add --no-cache bash openssl git openssh-client
+RUN apk update && \
+    apk add --no-cache bash jq openssl git openssh-client
 
 COPY bin/ ${bin}/
 

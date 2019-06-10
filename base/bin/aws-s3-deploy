@@ -76,6 +76,8 @@ fi
 
 echo "s3 sync ${SOURCE_DIR} => s3://${BUCKET_NAME}${BUCKET_PATH}"
 
+# TODO add in `--content-encoding "gzip"` `--content-encoding "br"`
+# TODO pre-zip files?
 copy() {
     echo "copy ${1} ${2}"
     aws s3 cp ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --recursive --sse \
