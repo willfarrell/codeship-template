@@ -26,6 +26,16 @@ docker:
     - /var/run/docker.sock:/var/run/docker.sock
     - .tmp/.docker/:/root/.docker
 
+aws-docker:
+  image: willfarrell/codeship-aws-docker
+  cached: true
+  encrypted_env_file: env.encrypted
+  env_file: .tmp/env
+  volumes_from:
+    - base
+    - aws
+    - docker
+
 node:
   image: willfarrell/codeship-node
   cached: true

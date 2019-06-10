@@ -42,4 +42,4 @@
   type: serial
   service: aws
   steps:
-    - command: bash -c 'aws-ecs-deploy --verbose --region ${AWS_DEFAULT_REGION} --cluster onguard-alb-ecs --service-name onguard-api --image ${AWS_DOCKER_REGISTRY}/onguard-api:${GIT_COMMIT_ID} --enable-rollback --profile ${AWS_DEFAULT_PROFILE}'
+    - command: bash -c 'aws-ecs-deploy --verbose --region ${AWS_DEFAULT_REGION} --cluster cluster-alb-ecs --service-name service-name --image ${AWS_DOCKER_REGISTRY}/name:${GIT_COMMIT_ID} --enable-rollback --profile ${AWS_DEFAULT_PROFILE}'
