@@ -6,4 +6,9 @@ if [ ! -z "${AWS_DOCKER_REGION}" ]; then
   AWS_DOCKER_REGION=AWS_DEFAULT_REGION
 fi
 
-aws --profile ${AWS_DEFAULT_PROFILE} ecr get-login --no-include-email --region ${AWS_DOCKER_REGION} | /bin/sh
+if [ ! -z "${AWS_DOCKER_PROFILE}" ]; then
+  echo "INFO: AWS_DOCKER_PROFILE not set, using AWS_DEFAULT_PROFILE"
+  AWS_DOCKER_PROFILE=AWS_DEFAULT_PROFILE
+fi
+
+aws --profile ${AWS_DOCKER_PROFILE} ecr get-login --no-include-email --region ${AWS_DOCKER_REGION} | /bin/sh
