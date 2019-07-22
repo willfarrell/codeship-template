@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -e
+
+# https://github.com/silinternational/ecs-deploy
+ecs-deploy ${@}

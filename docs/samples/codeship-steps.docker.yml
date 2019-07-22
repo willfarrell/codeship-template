@@ -29,7 +29,7 @@
       command: docker-push org/name
 
 - name: Push Docker Images (AWS)
-  type: parallel
+  type: serial
   service: aws-docker
   steps:
     - command: aws-env-check

@@ -1,41 +1,41 @@
 #!/usr/bin/env bash
 set -ex
 
-DEFAULT_CACHE_CONTROL='--cache-control "max-age=3600"'
+DEFAULT_CACHE_CONTROL='max-age=31536000, immutable' # or no-cache
 
 # Src: https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
 POSITIONAL=()
 while [[ $# -gt 0 ]]; do
-  case ${1} in
-    --dryrun)
-    DRYRUN="${1}"
-    shift # past argument
-    ;;
-    --cache-control)
-    CACHE_CONTROL="${1} \"${2}\""
-    shift # past argument
-    shift # past value
-    ;;
-    --distribution-id)
-    AWS_CLOUDFRONT_DISTRIBUTION_ID="${2}"
-    shift # past argument
-    shift # past value
-    ;;
-    --region)
-    AWS_REGION="${2}"
-    shift # past argument
-    shift # past value
-    ;;
-    --profile)
-    AWS_PROFILE="${2}"
-    shift # past argument
-    shift # past value
-    ;;
-    *)    # unknown option
-    POSITIONAL+=("$1") # save it in an array for later
-    shift # past argument
-    ;;
-  esac
+    case ${1} in
+        --dryrun)
+        DRYRUN="${1}"
+        shift # past argument
+        ;;
+        --cache-control)
+        CACHE_CONTROL="${2}"
+        shift # past argument
+        shift # past value
+        ;;
+        --distribution-id)
+        AWS_CLOUDFRONT_DISTRIBUTION_ID="${2}"
+        shift # past argument
+        shift # past value
+        ;;
+        --region)
+        AWS_REGION="${2}"
+        shift # past argument
+        shift # past value
+        ;;
+        --profile)
+        AWS_PROFILE="${2}"
+        shift # past argument
+        shift # past value
+        ;;
+        *)    # unknown option
+        POSITIONAL+=("$1") # save it in an array for later
+        shift # past argument
+        ;;
+    esac
 done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
@@ -50,8 +50,8 @@ CACHE_CONTROL=${CACHE_CONTROL:-${DEFAULT_CACHE_CONTROL}}
 
 # Ensure required vars a set
 if [ -z "${BUCKET_NAME}" ]; then
-  echo "Destination bucket name required. 'aws-s3-deploy \${source_dir} \${bucket_name}'";
-  exit 1;
+    echo "Destination bucket name required. 'aws-s3-deploy \${source_dir} \${bucket_name}'";
+    exit 1;
 fi
 
 
@@ -76,49 +76,88 @@ fi
 
 echo "s3 sync ${SOURCE_DIR} => s3://${BUCKET_NAME}${BUCKET_PATH}"
 
-# TODO add in `--content-encoding "gzip"` `--content-encoding "br"`
-# TODO pre-zip files?
+clean() {
+    find . -type f -name '*.DS_Store' -exec rm {} \;
+}
+
 copy() {
-    echo "copy ${1} ${2}"
+    CONTENT_TYPE=${2:-''}
+    echo "copy ${1} ${CONTENT_TYPE}"
     aws s3 cp ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --recursive --sse \
-        --no-guess-mime-type --content-type "${2}" --metadata-directive "REPLACE" \
-        --exclude="*" --include "${1}" \
-        ${CACHE_CONTROL} ${DRYRUN} \
-        --profile ${AWS_PROFILE}
+            --no-guess-mime-type --content-type "${CONTENT_TYPE}" --metadata-directive "REPLACE" \
+            --exclude="*" --include "${1}" \
+            --cache-control "${CACHE_CONTROL}"${DRYRUN} \
+            --profile ${AWS_PROFILE}
 }
 
 sync() {
-    echo "sync ${1} ${2}"
+    CONTENT_TYPE=${2:-''}
+    echo "sync ${1} ${CONTENT_TYPE}"
+
+    CACHE_CONTROL_OVERRIDE=CACHE_CONTROL
+    if [ "index.html" == "${1}" ] && [ "no-cache" != "${CONTENT_TYPE}" ]; then
+        CACHE_CONTROL_OVERRIDE='max-age=180'
+    fi
+
     aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
-        --no-guess-mime-type --content-type "${2}" --metadata-directive "REPLACE" \
-        --exclude="*" --include "${1}" \
-        ${CACHE_CONTROL} ${DRYRUN} \
-        --profile ${AWS_PROFILE}
+            --no-guess-mime-type --content-type "${CONTENT_TYPE}" --metadata-directive "REPLACE" \
+            --exclude="*" --include "${1}" \
+            --cache-control "${CACHE_CONTROL_OVERRIDE}" ${DRYRUN} \
+            --profile ${AWS_PROFILE}
 }
 
+# brew install brotli
+syncCompress() {
+    CONTENT_TYPE=${2:-''}
+    echo "sync ${1} ${CONTENT_TYPE}"
+
+    find . -type f -name ${1} -exec brotli --best --keep --force {} \;
+
+    aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
+        --no-guess-mime-type --content-type "${CONTENT_TYPE}" --content-encoding "br" --metadata-directive "REPLACE" \
+        --exclude="*" --include "${1}.br" \
+        --cache-control "${CACHE_CONTROL}" ${DRYRUN} \
+        --profile ${AWS_PROFILE}
+
+    #find . -type f -name ${1}.br -exec rm {} \;
+
+    # AWS will gzip by default
+    #find . -type f -name ${1} -exec gzip --best --keep --force {} \;
+    #aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
+    #    --no-guess-mime-type --content-type "${CONTENT_TYPE}" --content-encoding "gz" --metadata-directive "REPLACE" \
+    #    --exclude="*" --include "${1}.gz" \
+    #    --cache-control "${CACHE_CONTROL}" ${DRYRUN} \
+    #    --profile ${AWS_PROFILE}
+    #find . -type f -name ${1}.gz -exec rm {} \;
+}
+
+clean
+
 # /etc/mime.types
-sync "*.txt"         "text/plain; charset=utf-8"
 sync "*.webmanifest" "application/manifest+json; charset=utf-8"
-sync "*.js"          "text/javascript; charset=utf-8"
 sync "*.json"        "application/json; charset=utf-8"
+sync "*.txt"         "text/plain; charset=utf-8"
+sync "*.js"          "text/javascript; charset=utf-8"
+sync "index.html"    "text/html; charset=utf-8"
 sync "*.html"        "text/html; charset=utf-8"
+sync "*.css"         "text/css; charset=utf-8"
 
 # Upload remaining and remove unused
 echo "***** If you have nested folder not generated from this build, cancel now *****"
 echo "The next command does clean up, and will delete those nexted folders."
 aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
-    --delete \
-    ${CACHE_CONTROL} ${DRYRUN} \
-    --profile ${AWS_PROFILE}
+        --delete --metadata-directive "REPLACE" \
+        --cache-control "${CACHE_CONTROL}" ${DRYRUN} \
+        --profile ${AWS_PROFILE}
 
 if [ ! -z "${AWS_CLOUDFRONT_DISTRIBUTION_ID}" ]; then
-  PATHS_FILES=$(ls -p ${SOURCE_DIR} | grep -v / | awk '$0="'${BUCKET_PATH}'"$0')
-  PATHS_DIRS=$(ls -p ${SOURCE_DIR} | grep / | awk '$0="'${BUCKET_PATH}'"$0"*"')
-  PATHS="${PATHS_FILES[@]} ${PATHS_DIRS[@]}"
+    PATHS_FILES=$(ls -p ${SOURCE_DIR} | grep -v / | awk '$0="'${BUCKET_PATH}'"$0')
+    PATHS_DIRS=$(ls -p ${SOURCE_DIR} | grep / | awk '$0="'${BUCKET_PATH}'"$0"*"')
+    PATHS="${PATHS_FILES[@]} ${PATHS_DIRS[@]}"
 
-  if [ ! -z "${DRYRUN}" ]; then
-    echo "(dryrun) aws cloudfront create-invalidation --profile ${AWS_PROFILE} --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths $(echo $PATHS | xargs echo)"
-  else
-    echo ${PATHS} | xargs aws cloudfront create-invalidation --profile ${AWS_PROFILE} --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths
-  fi
+    if [ ! -z "${DRYRUN}" ]; then
+        echo "(dryrun) aws cloudfront create-invalidation --profile ${AWS_PROFILE} --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths $(echo $PATHS | xargs echo)"
+    else
+        echo ${PATHS} | xargs aws cloudfront create-invalidation --profile ${AWS_PROFILE} --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths
+    fi
 fi
