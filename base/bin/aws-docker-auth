@@ -11,4 +11,6 @@ if [ -z "${AWS_DOCKER_PROFILE}" ]; then
   AWS_DOCKER_PROFILE=AWS_DEFAULT_PROFILE
 fi
 
+
+echo "INFO: AWS ECR login to ${AWS_DOCKER_REGION} with ${AWS_DOCKER_PROFILE}."
 aws --profile ${AWS_DOCKER_PROFILE} ecr get-login --no-include-email --region ${AWS_DOCKER_REGION} | /bin/sh
