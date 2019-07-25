@@ -31,18 +31,18 @@
       command: docker-build willfarrell/codeship-jet ./jet/
     - name: base
       command: docker-build willfarrell/codeship-base ./base/
-    #- name: android
-    #  command: docker-build willfarrell/codeship-android ./android/
+#    - name: android
+#      command: docker-build willfarrell/codeship-android ./android/
     - name: aws
       command: docker-build willfarrell/codeship-aws ./aws/
+    - name: aws-docker
+      command: docker-build willfarrell/codeship-aws-docker ./aws-docker/
     - name: docker
       command: docker-build willfarrell/codeship-docker ./docker/
     - name: node
       command: docker-build willfarrell/codeship-node ./node/
     - name: serverless
       command: docker-build willfarrell/codeship-serverless ./serverless/
-    - name: aws-docker
-      command: docker-build willfarrell/codeship-aws-docker ./aws-docker/
 #    - name: terraform
 #      command: docker-build willfarrell/codeship-terraform ./terraform/
 
@@ -56,12 +56,15 @@
     - name: base
       tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-base
-    - name: android
-      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
-      command: docker-push willfarrell/codeship-android
+#    - name: android
+#      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
+#      command: docker-push willfarrell/codeship-android
     - name: aws
       tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-aws
+    - name: aws-docker
+      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
+      command: docker-push willfarrell/codeship-aws-docker
     - name: docker
       tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-docker
@@ -71,6 +74,6 @@
     - name: serverless
       tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-serverless
-    - name: terraform
-      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
-      command: docker-push willfarrell/codeship-terraform
+#    - name: terraform
+#      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
+#      command: docker-push willfarrell/codeship-terraform
