@@ -27,8 +27,8 @@
   type: parallel
   service: docker
   steps:
-    - name: jet
-      command: docker-build willfarrell/codeship-jet ./jet/
+#    - name: jet
+#      command: docker-build willfarrell/codeship-jet ./jet/
     - name: base
       command: docker-build willfarrell/codeship-base ./base/
 #    - name: android
@@ -50,9 +50,9 @@
   type: parallel
   service: docker
   steps:
-    - name: jet
-      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
-      command: docker-push willfarrell/codeship-jet
+#    - name: jet
+#      tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
+#      command: docker-push willfarrell/codeship-jet
     - name: base
       tag: ^(master|develop|release/\*|v[0-9]+\.[0-9]+\.[0-9]+)
       command: docker-push willfarrell/codeship-base
