@@ -40,4 +40,5 @@ AWS_DEFAULT_PROFILE=${AWS_DEFAULT_PROFILE}
 EOF
 
 # Testing AWS User
+echo "INFO: AWS Auth test with ${AWS_DEFAULT_PROFILE} to access ${AWS_ACCOUNT_ID}"
 aws sts get-caller-identity --profile ${AWS_DEFAULT_PROFILE}

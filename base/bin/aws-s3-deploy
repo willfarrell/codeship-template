@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
 DEFAULT_CACHE_CONTROL='max-age=31536000, immutable' # or no-cache
 
@@ -9,6 +9,14 @@ while [[ $# -gt 0 ]]; do
     case ${1} in
         --dryrun)
         DRYRUN="${1}"
+        shift # past argument
+        ;;
+        --clear-all)
+        CLEARALL="/*"
+        shift # past argument
+        ;;
+        --compression)
+        COMPRESSION="TRUE"
         shift # past argument
         ;;
         --cache-control)
@@ -95,8 +103,13 @@ sync() {
     echo "sync ${1} ${CONTENT_TYPE}"
 
     CACHE_CONTROL_OVERRIDE=CACHE_CONTROL
-    if [ "index.html" == "${1}" ] && [ "no-cache" != "${CONTENT_TYPE}" ]; then
-        CACHE_CONTROL_OVERRIDE='max-age=180'
+    #if [ "index.html" == "${1}" ] && [ "no-cache" != "${CONTENT_TYPE}" ]; then
+    #    CACHE_CONTROL_OVERRIDE='max-age=180'
+    #fi
+
+    # Service workers should never be cached
+    if [ "sw.js" == "${1}" ]; then
+        CACHE_CONTROL_OVERRIDE='no-cache'
     fi
 
     aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
@@ -104,43 +117,60 @@ sync() {
             --exclude="*" --include "${1}" \
             --cache-control "${CACHE_CONTROL_OVERRIDE}" ${DRYRUN} \
             --profile ${AWS_PROFILE}
-}
 
-# brew install brotli
-syncCompress() {
-    CONTENT_TYPE=${2:-''}
-    echo "sync ${1} ${CONTENT_TYPE}"
-
-    find . -type f -name ${1} -exec brotli --best --keep --force {} \;
-
-    aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
+    if [ "${COMPRESSION}" == "TRUE" ]; then
+      # brotli
+      find ${SOURCE_DIR} -type f -name "${1}" -exec brotli --best --keep --force {} +
+      aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
         --no-guess-mime-type --content-type "${CONTENT_TYPE}" --content-encoding "br" --metadata-directive "REPLACE" \
         --exclude="*" --include "${1}.br" \
         --cache-control "${CACHE_CONTROL}" ${DRYRUN} \
         --profile ${AWS_PROFILE}
 
-    #find . -type f -name ${1}.br -exec rm {} \;
+      # gzip
+      find ${SOURCE_DIR} -type f -name "${1}" -exec gzip --best --keep --force {} +
+      aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
+        --no-guess-mime-type --content-type "${CONTENT_TYPE}" --content-encoding "gzip" --metadata-directive "REPLACE" \
+        --exclude="*" --include "${1}.gz" \
+        --cache-control "${CACHE_CONTROL}" ${DRYRUN} \
+        --profile ${AWS_PROFILE}
 
-    # AWS will gzip by default
-    #find . -type f -name ${1} -exec gzip --best --keep --force {} \;
-    #aws s3 sync ${SOURCE_DIR} s3://${BUCKET_NAME}${BUCKET_PATH} --sse \
-    #    --no-guess-mime-type --content-type "${CONTENT_TYPE}" --content-encoding "gz" --metadata-directive "REPLACE" \
-    #    --exclude="*" --include "${1}.gz" \
-    #    --cache-control "${CACHE_CONTROL}" ${DRYRUN} \
-    #    --profile ${AWS_PROFILE}
-    #find . -type f -name ${1}.gz -exec rm {} \;
+    fi
 }
 
 clean
 
 # /etc/mime.types
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
 sync "*.webmanifest" "application/manifest+json; charset=utf-8"
 sync "*.json"        "application/json; charset=utf-8"
 sync "*.txt"         "text/plain; charset=utf-8"
 sync "*.js"          "text/javascript; charset=utf-8"
-sync "index.html"    "text/html; charset=utf-8"
-sync "*.html"        "text/html; charset=utf-8"
 sync "*.css"         "text/css; charset=utf-8"
+sync "*.xml"         "application/xml" # text/xml human readable; application/xml non-human readable
+sync "rss.xml"       "application/rss+xml"
+sync "atom.xml"      "application/atom+xml"
+sync "*.html"        "text/html; charset=utf-8"
+
+# Images
+sync "*.svg"   "image/svg+xml; charset=utf-8"
+sync "*.jpg"   "image/jpeg"
+sync "*.gif"   "image/gif"
+sync "*.png"   "image/png"
+sync "*.webp"  "image/webp"
+sync "*.ico"   "image/vnd.microsoft.icon"
+
+# Fonts
+sync "*.eot"   "application/vnd.ms-fontobject"
+sync "*.ttf"   "font/ttf"
+sync "*.woff"  "font/woff"
+sync "*.woff2" "font/woff2"
+
+# Downloads
+sync "*.pdf"   "application/pdf"
+sync "*.csv"   "text/csv"
+sync "*.xlsx"  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+sync "*.zip"   "application/zip"
 
 # Upload remaining and remove unused
 echo "***** If you have nested folder not generated from this build, cancel now *****"
@@ -157,6 +187,8 @@ if [ ! -z "${AWS_CLOUDFRONT_DISTRIBUTION_ID}" ]; then
 
     if [ ! -z "${DRYRUN}" ]; then
         echo "(dryrun) aws cloudfront create-invalidation --profile ${AWS_PROFILE} --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths $(echo $PATHS | xargs echo)"
+    elif [ ! -z "${CLEARALL}" ]; then
+       aws cloudfront create-invalidation --profile ${AWS_PROFILE} --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths "${CLEARALL}"
     else
         echo ${PATHS} | xargs aws cloudfront create-invalidation --profile ${AWS_PROFILE} --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION_ID} --paths
     fi

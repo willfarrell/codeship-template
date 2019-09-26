@@ -6,7 +6,8 @@ ARG workdir=/data
 
 WORKDIR ${workdir}
 
-RUN apk add --no-cache --virtual .build-dep curl tar && \
+RUN apk update && \
+    apk add --no-cache --virtual .build-dep curl tar && \
     curl -SLO "https://s3.amazonaws.com/codeship-jet-releases/2.10.0/jet-linux_${ARCH}_${JET_VERSION}.tar.gz" && \
     tar -xaC /usr/local/bin -f jet-linux_${ARCH}_${JET_VERSION}.tar.gz && \
     rm jet-linux_${ARCH}_${JET_VERSION}.tar.gz && \
