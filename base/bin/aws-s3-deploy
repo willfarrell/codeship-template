@@ -153,12 +153,17 @@ sync "atom.xml"      "application/atom+xml"
 sync "*.html"        "text/html; charset=utf-8"
 
 # Images
+sync "*.ico"   "image/vnd.microsoft.icon"
 sync "*.svg"   "image/svg+xml; charset=utf-8"
 sync "*.jpg"   "image/jpeg"
-sync "*.gif"   "image/gif"
 sync "*.png"   "image/png"
 sync "*.webp"  "image/webp"
-sync "*.ico"   "image/vnd.microsoft.icon"
+sync "*.gif"   "image/gif"
+
+# Video
+sync "*.webm"  "video/webm"
+sync "*.mp4"   "video/mp4"
+sync "*.vtt"   "text/vtt"
 
 # Fonts
 sync "*.eot"   "application/vnd.ms-fontobject"
