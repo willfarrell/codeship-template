@@ -5,7 +5,7 @@ POSITIONAL=()
 while [[ $# -gt 0 ]]; do
   case ${1} in
     --build-arg)
-    BUILD_ARG="${1} ${2}"
+    BUILD_ARG="${1} ${2}" # --build-arg KEY=VALUE
     shift # past argument
     shift # past argument
     ;;
