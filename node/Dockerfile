@@ -1,6 +1,6 @@
 FROM willfarrell/codeship-base AS base
 
-FROM node:10-alpine
+FROM node:12-alpine
 
 ARG workdir=/data
 ARG bin=/usr/local/bin/codeship
