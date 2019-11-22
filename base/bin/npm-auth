@@ -5,3 +5,7 @@ if [ "${NPM_TOKEN}" != "" ]; then
   echo "//${NPM_REGISTRY:-registry.npmjs.org}/:_authToken=${NPM_TOKEN}" > .npmrc
 fi
 
+if [ "${GITHUB_TOKEN}" != "" ]; then
+  echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" > .npmrc
+fi
+
