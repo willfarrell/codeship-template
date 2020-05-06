@@ -1,7 +1,9 @@
 #!/usr/bin/env sh
 set -e
 
-echo '{ "debug":true, "experimental": "enabled" }' > ~/.docker/config.json
+if [ "${DOCKER_EXPERIMENTAL}" == "TRUE" ]; then
+  echo '{ "debug":true, "experimental": "enabled" }' > ~/.docker/config.json
+fi
 
 if [ ! -z "${DOCKER_USERNAME}" ] && [ ! -z "${DOCKER_PASSWORD}" ]; then
   #DOCKER_REGISTRY=${DOCKER_REGISTRY:-'index.docker.io'}

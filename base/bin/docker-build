@@ -44,7 +44,8 @@ docker pull ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} || :
 
 # Build
 ## :commit
-docker build ${BUILD_ARG} --tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} ${DOCKERFILE_PATH}
+export DOCKER_BUILDKIT=1
+docker build ${BUILD_ARG} --tag ${IMAGE_NAME}:${GIT_COMMIT_ID}${TAG_SUFFIX} --build-arg DOCKER_INLINE_CACHE=1 ${DOCKERFILE_PATH}
 
 ## :latest
 if [ "${ENVIRONMENT}" == "production" ]; then
